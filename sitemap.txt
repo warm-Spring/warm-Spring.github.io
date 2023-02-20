@@ -5,8 +5,8 @@ https://warm-spring.github.io/2020/09/15/13-11-04/
 https://warm-spring.github.io/2023/02/18/20-56-30/
 https://warm-spring.github.io/404.html
 https://warm-spring.github.io/books/index.html
-https://warm-spring.github.io/categories/index.html
 https://warm-spring.github.io/about/index.html
+https://warm-spring.github.io/categories/index.html
 https://warm-spring.github.io/links/index.html
 https://warm-spring.github.io/repository/index.html
 https://warm-spring.github.io/tags/index.html
