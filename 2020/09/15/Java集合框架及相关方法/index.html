@@ -20,17 +20,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="1.Collection接口(1)addAll 123Collection&lt;Integer&gt; collection &#x3D; new ArrayList&lt;Integer&gt;(Arrays.asList(1,2,3,4,5));Integer[] moreInts &#x3D; &#123;6,7,8,9,10&#125;;collection.addAll(Arrays.asList(mor">
+  <meta name="description" content="Collection接口(1)addAll 123Collection&lt;Integer&gt; collection &#x3D; new ArrayList&lt;Integer&gt;(Arrays.asList(1,2,3,4,5));Integer[] moreInts &#x3D; &#123;6,7,8,9,10&#125;;collection.addAll(Arrays.asList(moreI">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java集合框架及相关方法">
 <meta property="og:url" content="http://example.com/2020/09/15/Java%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%96%B9%E6%B3%95/index.html">
 <meta property="og:site_name" content="春不寒">
-<meta property="og:description" content="1.Collection接口(1)addAll 123Collection&lt;Integer&gt; collection &#x3D; new ArrayList&lt;Integer&gt;(Arrays.asList(1,2,3,4,5));Integer[] moreInts &#x3D; &#123;6,7,8,9,10&#125;;collection.addAll(Arrays.asList(mor">
+<meta property="og:description" content="Collection接口(1)addAll 123Collection&lt;Integer&gt; collection &#x3D; new ArrayList&lt;Integer&gt;(Arrays.asList(1,2,3,4,5));Integer[] moreInts &#x3D; &#123;6,7,8,9,10&#125;;collection.addAll(Arrays.asList(moreI">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-09-15T05:11:04.000Z">
-<meta property="article:modified_time" content="2024-08-30T06:20:46.725Z">
+<meta property="article:modified_time" content="2024-08-31T05:41:08.373Z">
 <meta property="article:author" content="Mr.Fang">
-<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Java基础">
+<meta property="article:tag" content="Java集合">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/2020/09/15/Java%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%96%B9%E6%B3%95/">
@@ -191,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-08-30 14:20:46" itemprop="dateModified" datetime="2024-08-30T14:20:46+08:00">2024-08-30</time>
+                <time title="修改时间：2024-08-31 13:41:08" itemprop="dateModified" datetime="2024-08-31T13:41:08+08:00">2024-08-31</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -199,7 +200,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E6%80%BB%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">Java总结</span></a>
+                  <a href="/categories/Java%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">Java基础</span></a>
                 </span>
             </span>
 
@@ -214,30 +215,101 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><strong>1.Collection接口</strong><br>(1)addAll</p>
+        <h3 id="Collection接口"><a href="#Collection接口" class="headerlink" title="Collection接口"></a>Collection接口</h3><p>(1)addAll</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Collection&lt;Integer&gt; collection = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;Integer&gt;(Arrays.asList(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>));</span><br><span class="line">Integer[] moreInts = &#123;<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>&#125;;</span><br><span class="line">collection.addAll(Arrays.asList(moreInts));</span><br></pre></td></tr></table></figure>
-<p>(2)public boolean add(E e):把给定的对象添加到当前集合中<br>(3)public void clear():清空集合中的元素<br>(4)public boolean remove(E e):把给定的对象在当前集合中删除<br>public boolean removeAll(Collection c):从集合中删除c集合中所有的元素<br>(5)public boolean contains(E e):判断当前集合中是否包含给定的对象</p>
+<p>(2)public boolean add(E e):把给定的对象添加到当前集合中</p>
+<p>(3)public void clear():清空集合中的元素</p>
+<p>(4)public boolean remove(E e):把给定的对象在当前集合中删除</p>
 <span id="more"></span>
-<p>public boolean containsAll(Collection c):检查Collection集合中是否包含c的全部对象，全部包含则返回true<br>(6)public boolean isEmpty():判断当前集合是否为空<br>(7)public int size():返回集合中元素的个数<br>(8)pubic Object[] toArray():把集合中的元素，存储到数组中<br>(9)Object的equal方法：是用”&#x3D;&#x3D;”实现，即比较地址是否一样</p>
+<p>public boolean removeAll(Collection c):从集合中删除c集合中所有的元素</p>
+<p>(5)public boolean contains(E e):判断当前集合中是否包含给定的对象</p>
+<p>public boolean containsAll(Collection c):检查Collection集合中是否包含c的全部对象，全部包含则返回true</p>
+<p>(6)public boolean isEmpty():判断当前集合是否为空</p>
+<p>(7)public int size():返回集合中元素的个数</p>
+<p>(8)pubic Object[] toArray():把集合中的元素，存储到数组中</p>
+<p>(9)Object的equal方法：是用”&#x3D;&#x3D;”实现，即比较地址是否一样</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">equals</span><span class="params">(Object obj)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="built_in">this</span> == obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>(10)public int hashCode():返回此Collection集合的哈希码值<br>(11)public void retainAll(Collection c):集合中仅保留c集合中的所有元素(两者的交集)<br>(12)public Object[] toArray():返回包含此collection集合中所有元素的数组</p>
-<p><strong>2.List接口</strong><br>(1)public void add(int index,E e):将指定元素，添加到该集合中的指定位置上，后面的元素都往后移一个元素<br>public boolean addAll(int index,Collection c):在指定位置插入c集合全部元素，如果集合中没有元素，则返回false<br>(2)public E get(int index):返回集合中指定位置的元素<br>(3)public E remove(int index):移除列表中指定位置的元素，返回的是被移除的元素<br>(4)public E set(int index,E e):用指定元素替换集合中指定位置的元素，返回值为更新前的元素<br>(5)public int indexOf(Object[] o):返回该对象在List中所处位置的索引编号,若没有则返回-1<br>(6)List<E> subList(int fromIndex,int toIndex):返回从索引fromIndex到toIndex的元素集合，包左不包右<br><strong>3.LinkedList</strong><br>(1)public void addFirst(E e):将指定元素插入此列表的开头<br>(2)public void addLast(E e):将指定元素添加到此列表的结尾<br>(3)public E getFirst():返回此列表的第一个元素<br>(4)public E getLast():返回此列表的最后一个元素<br>(5)public E removeFirst():移除并返回此列表的第一个元素<br>(6)public E removeLast():移除并返回此列表的最后一个元素<br>(7)public E pop(): 从此列表所表示的堆栈处弹出一个元素<br>(8)public void push(E e):将元素推入此列表所表示的堆栈<br>(9)public boolean isEmpty():如果列表不包含元素，则返回true</p>
-<p><strong>4.Stack</strong><br>(1)public void push(num):入栈<br>(2)public E pop():栈顶元素出栈并返回值<br>(3)public boolean empty():判定栈是否为空<br>(4)public E peek():获取栈顶元素<br>(5)public int search(num):判断元素num是否在栈中，若在返回1，不在返回-1<br><strong>5.Queue</strong><br>这组方法，成功返回true,操作失败抛出异常<br>(1)public void add(E e):添加一个元素到队尾<br>(2)public E remove():获取队首元素，并从队列中移除<br>(3)public E element():获取队首的元素，但不从队列中移除<br>这组方法，成功返回true,失败时返回一个特殊值(NULL或false)<br>(4)public void offer(E e):添加一个元素到队尾<br>(5)public E poll():获取队首的元素，并从队列中移除<br>(6)public E peek():获取队首的元素，但不从队列中移除<br><strong>6.PriorityQueue</strong><br>(1)PriorityQueue<Integer> priorityqueue &#x3D; new PriorityQueue<Integer>();自然顺序排列<br>(2)PriorityQueue<Integer> priorityqueue &#x3D; new PriorityQueue<Integer>(10,Collections.reverseOrder());逆序排列<br>(3)按自己意愿排序：</p>
+<p>(10)public int hashCode():返回此Collection集合的哈希码值</p>
+<p>(11)public void retainAll(Collection c):集合中仅保留c集合中的所有元素(两者的交集)</p>
+<p>(12)public Object[] toArray():返回包含此collection集合中所有元素的数组</p>
+<h3 id="List接口"><a href="#List接口" class="headerlink" title="List接口"></a>List接口</h3><p>(1)public void add(int index,E e):将指定元素，添加到该集合中的指定位置上，后面的元素都往后移一个元素<br>public boolean addAll(int index,Collection c):在指定位置插入c集合全部元素，如果集合中没有元素，则返回false</p>
+<p>(2)public E get(int index):返回集合中指定位置的元素</p>
+<p>(3)public E remove(int index):移除列表中指定位置的元素，返回的是被移除的元素</p>
+<p>(4)public E set(int index,E e):用指定元素替换集合中指定位置的元素，返回值为更新前的元素</p>
+<p>(5)public int indexOf(Object[] o):返回该对象在List中所处位置的索引编号,若没有则返回-1</p>
+<p>(6)List<E> subList(int fromIndex,int toIndex):返回从索引fromIndex到toIndex的元素集合，包左不包右</p>
+<h3 id="LinkedList"><a href="#LinkedList" class="headerlink" title="LinkedList"></a>LinkedList</h3><p>(1)public void addFirst(E e):将指定元素插入此列表的开头</p>
+<p>(2)public void addLast(E e):将指定元素添加到此列表的结尾</p>
+<p>(3)public E getFirst():返回此列表的第一个元素</p>
+<p>(4)public E getLast():返回此列表的最后一个元素</p>
+<p>(5)public E removeFirst():移除并返回此列表的第一个元素</p>
+<p>(6)public E removeLast():移除并返回此列表的最后一个元素</p>
+<p>(7)public E pop(): 从此列表所表示的堆栈处弹出一个元素</p>
+<p>(8)public void push(E e):将元素推入此列表所表示的堆栈</p>
+<p>(9)public boolean isEmpty():如果列表不包含元素，则返回true</p>
+<h3 id="Stack"><a href="#Stack" class="headerlink" title="Stack"></a>Stack</h3><p>(1)public void push(num):入栈</p>
+<p>(2)public E pop():栈顶元素出栈并返回值</p>
+<p>(3)public boolean empty():判定栈是否为空</p>
+<p>(4)public E peek():获取栈顶元素</p>
+<p>(5)public int search(num):判断元素num是否在栈中，若在返回1，不在返回-1</p>
+<h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><p>这组方法，成功返回true,操作失败抛出异常</p>
+<p>(1)public void add(E e):添加一个元素到队尾</p>
+<p>(2)public E remove():获取队首元素，并从队列中移除</p>
+<p>(3)public E element():获取队首的元素，但不从队列中移除</p>
+<p>这组方法，成功返回true,失败时返回一个特殊值(NULL或false)</p>
+<p>(4)public void offer(E e):添加一个元素到队尾</p>
+<p>(5)public E poll():获取队首的元素，并从队列中移除</p>
+<p>(6)public E peek():获取队首的元素，但不从队列中移除</p>
+<h3 id="PriorityQueue"><a href="#PriorityQueue" class="headerlink" title="PriorityQueue"></a>PriorityQueue</h3><p>(1)PriorityQueue<Integer> priorityqueue &#x3D; new PriorityQueue<Integer>();自然顺序排列</p>
+<p>(2)PriorityQueue<Integer> priorityqueue &#x3D; new PriorityQueue<Integer>(10,Collections.reverseOrder());逆序排列</p>
+<p>(3)按自己意愿排序：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PriorityQueue&lt;PriorityObject&gt; queue = <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>&lt;PriorityObject&gt;(<span class="number">10</span>,<span class="keyword">new</span> <span class="title class_">Comparator</span>&lt;PriorityObject&gt;()&#123;</span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compare</span><span class="params">(PriorityObject paramT1,  PriorityObject paramT2)</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span>  paramT2.mPriority - paramT1.mPriority;  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;);  </span><br></pre></td></tr></table></figure>
 
-<p>7.<strong>Set集合</strong>继承自Collection接口,没有额外的方法<br>8.<strong>HashSet</strong>:重写equal和hashcode<br>9.<strong>LinkedHashSet</strong>：有顺序，重写equal和hashcode</p>
-<p>10.<strong>Map接口</strong><br>(1)public V put(K key,V value):把指定的键与指定的值添加到Map集合中<br>public void putAll(Map&lt;K,V&gt; m):向map集合中添加hiding集合中的所有元素<br>(2)public V remove(Object key):把指定的键所对应的键值对元素在Map集合中删除，返回被删除元素的值<br>(3)public V get(Object key):根据指定的键，在Map集合中获取对应的值<br>(4)public boolean containsKey(Object key):检查map集合中有没有包含Key为key的元素，如果有则返回true<br>(5)public boolean containsValue(Object value):检查map集合中有没有包含Value为value的元素，如果有则返回true<br>(6)public boolean equals(Object o):判断两个map集合的元素是否相同（底层重写了equals方法）<br>(7)public void clear():把map集合中所有键值删除<br>(8)public int size():返回map集合中元素个数<br>(9)public int hashCode():返回map集合的哈希码值<br>(10)public boolean isEmpty():检查map集合中是否有元素，如果没有则返回true</p>
-<p>(11)public Set<K> keySet():返回map集合中所有Key<br>(12)public Collection<V> values():返回map集合中所有的Value到一个Collection集合<br>(13)遍历方式：public Set&lt;Map.Entry&lt;K,V&gt;&gt; entrySet():返回map到一个Set集合中，以map集合中的Key&#x3D;Value的形式返回到set中<br>(14)对Entry对象获取键值：<br>public K getKey()<br>public V getValue()</p>
+<h3 id="Set集合"><a href="#Set集合" class="headerlink" title="Set集合"></a>Set集合</h3><p>继承自Collection接口,没有额外的方法</p>
+<h3 id="Map接口"><a href="#Map接口" class="headerlink" title="Map接口"></a>Map接口</h3><p>(1)public V put(K key,V value):把指定的键与指定的值添加到Map集合中</p>
+<p>public void putAll(Map&lt;K,V&gt; m):向map集合中添加hiding集合中的所有元素</p>
+<p>(2)public V remove(Object key):把指定的键所对应的键值对元素在Map集合中删除，返回被删除元素的值</p>
+<p>(3)public V get(Object key):根据指定的键，在Map集合中获取对应的值</p>
+<p>(4)public boolean containsKey(Object key):检查map集合中有没有包含Key为key的元素，如果有则返回true</p>
+<p>(5)public boolean containsValue(Object value):检查map集合中有没有包含Value为value的元素，如果有则返回true</p>
+<p>(6)public boolean equals(Object o):判断两个map集合的元素是否相同（底层重写了equals方法）</p>
+<p>(7)public void clear():把map集合中所有键值删除</p>
+<p>(8)public int size():返回map集合中元素个数</p>
+<p>(9)public int hashCode():返回map集合的哈希码值</p>
+<p>(10)public boolean isEmpty():检查map集合中是否有元素，如果没有则返回true</p>
+<p>(11)public Set<K> keySet():返回map集合中所有Key</p>
+<p>(12)public Collection<V> values():返回map集合中所有的Value到一个Collection集合</p>
+<p>(13)遍历方式：public Set&lt;Map.Entry&lt;K,V&gt;&gt; entrySet():返回map到一个Set集合中，以map集合中的Key&#x3D;Value的形式返回到set中</p>
+<p>(14)对Entry对象获取键值：<br>public K getKey()<br>public V getValue()</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HashMap&lt;<span class="type">int</span>,String&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;<span class="type">int</span>,String&gt;();</span><br><span class="line">map.put(<span class="number">1</span>,<span class="string">&quot;a&quot;</span>);map.put(<span class="number">2</span>,<span class="string">&quot;b&quot;</span>);map.put(<span class="number">3</span>,<span class="string">&quot;c&quot;</span>);</span><br><span class="line">Set&lt;Entry&lt;<span class="type">int</span>,String&gt;&gt; entrySet = map.entrySet();<span class="comment">//获取所有entry对象</span></span><br><span class="line"><span class="comment">//遍历得到每一个entry对象</span></span><br><span class="line"><span class="keyword">for</span>(Entry&lt;<span class="type">int</span>,String&gt; entry:entrySet)&#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">key</span> <span class="operator">=</span> entry.getKey();</span><br><span class="line">    <span class="type">String</span> <span class="variable">value</span> <span class="operator">=</span> entry.getValue();</span><br><span class="line">    System.out.println(key+<span class="string">&quot;:&quot;</span>+value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Map集合遍历的三种方式：<br>a.使用keySet():获取map集合中的所有键，再通过get方法获取键对应的值<br>b.通过values获取所有值，不能获取到key对象<br>c.获取Map.Entry对象集合<br>11.<strong>HashMap</strong>应用要复写equals和hashcode方法<br>12.<strong>LinkedHashMap</strong>有序</p>
-<p>13.<strong>Iterator迭代器</strong><br>(1)public Iterator iterator():获取集合对应的迭代器，用来遍历集合中的元素<br>(2)public E next():返回迭代的下一个元素<br>(3)public boolean hasNext():如果仍有元素可以迭代，则返回true<br>(4)public void remove():删除集合中Iterator指向位置后面的元素</p>
+<p>Map集合遍历的三种方式：</p>
+<p>a.使用keySet():获取map集合中的所有键，再通过get方法获取键对应的值</p>
+<p>b.通过values获取所有值，不能获取到key对象</p>
+<p>c.获取Map.Entry对象集合</p>
+<h3 id="Iterator迭代器"><a href="#Iterator迭代器" class="headerlink" title="Iterator迭代器"></a>Iterator迭代器</h3><p>(1)public Iterator iterator():获取集合对应的迭代器，用来遍历集合中的元素</p>
+<p>(2)public E next():返回迭代的下一个元素</p>
+<p>(3)public boolean hasNext():如果仍有元素可以迭代，则返回true</p>
+<p>(4)public void remove():删除集合中Iterator指向位置后面的元素</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">(Iteration&lt;Pet&gt; it)</span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(it.hasNext())&#123;</span><br><span class="line">        <span class="type">Pet</span> <span class="variable">p</span> <span class="operator">=</span> it.next();</span><br><span class="line">        System.out.println(p);</span><br><span class="line">    &#125;   </span><br><span class="line">&#125;</span><br><span class="line">display(pets.iterator());</span><br></pre></td></tr></table></figure>
 <p>有些地方使用Collection可以有相同的作用</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">(Collection&lt;Pet&gt; pets)</span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(Pet p : pets)</span><br><span class="line">        System.out.println(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>14.<strong>listIterator迭代器</strong><br>(1)public void add(E e):将指定元素插入列表，插入位置为迭代器当前位置之前<br>(2)public boolean hasNext():以正向遍历列表时，如果列表迭代器后面还有元素，则返回true<br>(3)public boolean hasPrevious():以逆向遍历列表，列表迭代器前面还有元素，则返回true<br>(4)public E next():返回列表中listIterator指向位置后面的元素<br>(5)public int nextIndex():返回列表中listIterator所指位置后面元素的索引<br>(6)public E previous():返回列表中listIterator所指位置前面的元素<br>(7)public int previousIndex():返回列表中listIterator所指位置前面元素的索引<br>(8)public void remove():删除集合中Iterator指向位置后面的元素<br>(9)public void set(E e):从列表中将next()或previous()返回的最后一个元素更改为指定元素e<br>(10)public ListIterator<E> listIterator(int index):从指定位置开始，返回此列表元素的列表迭代器</p>
-<p>15.<strong>Collections</strong>:<br>java.utils.Collections集合工具类<br>(1)public static boolean addAll(Collection<T> c,T… elements):往集合中添加一些元素</p>
+<h3 id="listIterator迭代器"><a href="#listIterator迭代器" class="headerlink" title="listIterator迭代器"></a>listIterator迭代器</h3><p>(1)public void add(E e):将指定元素插入列表，插入位置为迭代器当前位置之前</p>
+<p>(2)public boolean hasNext():以正向遍历列表时，如果列表迭代器后面还有元素，则返回true</p>
+<p>(3)public boolean hasPrevious():以逆向遍历列表，列表迭代器前面还有元素，则返回true</p>
+<p>(4)public E next():返回列表中listIterator指向位置后面的元素</p>
+<p>(5)public int nextIndex():返回列表中listIterator所指位置后面元素的索引</p>
+<p>(6)public E previous():返回列表中listIterator所指位置前面的元素</p>
+<p>(7)public int previousIndex():返回列表中listIterator所指位置前面元素的索引</p>
+<p>(8)public void remove():删除集合中Iterator指向位置后面的元素</p>
+<p>(9)public void set(E e):从列表中将next()或previous()返回的最后一个元素更改为指定元素e</p>
+<p>(10)public ListIterator<E> listIterator(int index):从指定位置开始，返回此列表元素的列表迭代器</p>
+<h3 id="Collections"><a href="#Collections" class="headerlink" title="Collections"></a>Collections</h3><p>java.utils.Collections集合工具类</p>
+<p>(1)public static boolean addAll(Collection<T> c,T… elements):往集合中添加一些元素</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Collections.addAll(collection,<span class="number">11</span>,<span class="number">12</span>,<span class="number">13</span>,<span class="number">14</span>,<span class="number">15</span>);</span><br><span class="line">Collections.addAll(collection,moreInts);</span><br></pre></td></tr></table></figure>
-<p>(2)public static void shuffle(List&lt;?&gt; list):打乱集合顺序<br>(3)public static void sort(List<T> list):将集合中元素按照默认规则排序<br>(4)public static void sort(List<T> list,Comparator&lt;? super T&gt;):将集合中元素按照指定规则排序<br>(5)<a target="_blank" rel="noopener" href="https://blog.csdn.net/Mr_Happy_/article/details/105695062">Comparable接口和Comparator接口的比较</a></p>
+<p>(2)public static void shuffle(List&lt;?&gt; list):打乱集合顺序</p>
+<p>(3)public static void sort(List<T> list):将集合中元素按照默认规则排序</p>
+<p>(4)public static void sort(List<T> list,Comparator&lt;? super T&gt;):将集合中元素按照指定规则排序</p>
+<p>(5)<a target="_blank" rel="noopener" href="https://blog.csdn.net/Mr_Happy_/article/details/105695062">Comparable接口和Comparator接口的比较</a></p>
 
     </div>
 
@@ -247,7 +319,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Java%E5%9F%BA%E7%A1%80/" rel="tag"># Java基础</a>
+              <a href="/tags/Java%E9%9B%86%E5%90%88/" rel="tag"># Java集合</a>
           </div>
 
         
@@ -318,6 +391,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Collection%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.</span> <span class="nav-text">Collection接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#List%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.</span> <span class="nav-text">List接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LinkedList"><span class="nav-number">3.</span> <span class="nav-text">LinkedList</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stack"><span class="nav-number">4.</span> <span class="nav-text">Stack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Queue"><span class="nav-number">5.</span> <span class="nav-text">Queue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PriorityQueue"><span class="nav-number">6.</span> <span class="nav-text">PriorityQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Set%E9%9B%86%E5%90%88"><span class="nav-number">7.</span> <span class="nav-text">Set集合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Map%E6%8E%A5%E5%8F%A3"><span class="nav-number">8.</span> <span class="nav-text">Map接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Iterator%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">9.</span> <span class="nav-text">Iterator迭代器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#listIterator%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">10.</span> <span class="nav-text">listIterator迭代器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Collections"><span class="nav-number">11.</span> <span class="nav-text">Collections</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -331,20 +405,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
