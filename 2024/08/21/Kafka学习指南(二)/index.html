@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="消费者端自动提交与手动提交 消费者端自动提交 消息丢失 消息重复消费   消费者端手动提交 消息不丢失，但是会重复消费 消息不会重复消费，但是会丢失 消息既不丢失也不重复消费     消费者保证只消费一次消息 幂等性与重复消费 幂等性方案 唯一性约束 去重表   乐观锁机制 悲观锁机制 分布式锁 Token机制     防止消息丢失 生产者端 ack &#x3D; 0,1,-1 确认机制   B">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka学习指南(二)">
+<meta property="og:url" content="http://example.com/2024/08/21/Kafka%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97(%E4%BA%8C)/index.html">
+<meta property="og:site_name" content="春不寒">
+<meta property="og:description" content="消费者端自动提交与手动提交 消费者端自动提交 消息丢失 消息重复消费   消费者端手动提交 消息不丢失，但是会重复消费 消息不会重复消费，但是会丢失 消息既不丢失也不重复消费     消费者保证只消费一次消息 幂等性与重复消费 幂等性方案 唯一性约束 去重表   乐观锁机制 悲观锁机制 分布式锁 Token机制     防止消息丢失 生产者端 ack &#x3D; 0,1,-1 确认机制   B">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/image-1.png">
+<meta property="og:image" content="http://example.com/image-2.png">
+<meta property="og:image" content="http://example.com/image-22.png">
+<meta property="article:published_time" content="2024-08-21T05:11:04.000Z">
+<meta property="article:modified_time" content="2024-09-02T15:48:14.556Z">
+<meta property="article:author" content="Mr.Fang">
+<meta property="article:tag" content="消息队列">
+<meta property="article:tag" content="Kafka">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/image-1.png">
+
+<link rel="canonical" href="http://example.com/2024/08/21/Kafka%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97(%E4%BA%8C)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Kafka学习指南(二) | 春不寒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">春不寒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/21/Kafka%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97(%E4%BA%8C)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Mr.Fang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="春不寒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kafka学习指南(二)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-08-21 13:11:04" itemprop="dateCreated datePublished" datetime="2024-08-21T13:11:04+08:00">2024-08-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-02 23:48:14" itemprop="dateModified" datetime="2024-09-02T23:48:14+08:00">2024-09-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" itemprop="url" rel="index"><span itemprop="name">消息队列</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><a href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%AB%AF%E8%87%AA%E5%8A%A8%E6%8F%90%E4%BA%A4%E4%B8%8E%E6%89%8B%E5%8A%A8%E6%8F%90%E4%BA%A4">消费者端自动提交与手动提交</a><ul>
+<li><a href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%AB%AF%E8%87%AA%E5%8A%A8%E6%8F%90%E4%BA%A4">消费者端自动提交</a><ul>
+<li><a href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1">消息丢失</a></li>
+<li><a href="#%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9">消息重复消费</a></li>
+</ul>
+</li>
+<li><a href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%AB%AF%E6%89%8B%E5%8A%A8%E6%8F%90%E4%BA%A4">消费者端手动提交</a><ul>
+<li><a href="#%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1%E4%BD%86%E6%98%AF%E4%BC%9A%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9">消息不丢失，但是会重复消费</a></li>
+<li><a href="#%E6%B6%88%E6%81%AF%E4%B8%8D%E4%BC%9A%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E4%BD%86%E6%98%AF%E4%BC%9A%E4%B8%A2%E5%A4%B1">消息不会重复消费，但是会丢失</a></li>
+<li><a href="#%E6%B6%88%E6%81%AF%E6%97%A2%E4%B8%8D%E4%B8%A2%E5%A4%B1%E4%B9%9F%E4%B8%8D%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9">消息既不丢失也不重复消费</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E6%B6%88%E8%B4%B9%E8%80%85%E4%BF%9D%E8%AF%81%E5%8F%AA%E6%B6%88%E8%B4%B9%E4%B8%80%E6%AC%A1%E6%B6%88%E6%81%AF">消费者保证只消费一次消息</a><ul>
+<li><a href="#%E5%B9%82%E7%AD%89%E6%80%A7%E4%B8%8E%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9">幂等性与重复消费</a></li>
+<li><a href="#%E5%B9%82%E7%AD%89%E6%80%A7%E6%96%B9%E6%A1%88">幂等性方案</a><ul>
+<li><a href="#%E5%94%AF%E4%B8%80%E6%80%A7%E7%BA%A6%E6%9D%9F">唯一性约束</a><ul>
+<li><a href="#%E5%8E%BB%E9%87%8D%E8%A1%A8">去重表</a></li>
+</ul>
+</li>
+<li><a href="#%E4%B9%90%E8%A7%82%E9%94%81%E6%9C%BA%E5%88%B6">乐观锁机制</a></li>
+<li><a href="#%E6%82%B2%E8%A7%82%E9%94%81%E6%9C%BA%E5%88%B6">悲观锁机制</a></li>
+<li><a href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81">分布式锁</a></li>
+<li><a href="#token%E6%9C%BA%E5%88%B6">Token机制</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E9%98%B2%E6%AD%A2%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1">防止消息丢失</a><ul>
+<li><a href="#%E7%94%9F%E4%BA%A7%E8%80%85%E7%AB%AF">生产者端</a><ul>
+<li><a href="#ack--01-1-%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6">ack &#x3D; 0,1,-1 确认机制</a></li>
+</ul>
+</li>
+<li><a href="#broker">Broker</a><ul>
+<li><a href="#1-%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6">1. 持久化机制：</a></li>
+<li><a href="#2-isr%E6%9C%BA%E5%88%B6">2. ISR机制</a></li>
+</ul>
+</li>
+<li><a href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%AB%AF">消费者端</a><ul>
+<li><a href="#1-%E6%89%8B%E5%8A%A8%E6%8F%90%E4%BA%A4offset">1. 手动提交offset</a></li>
+<li><a href="#2-%E7%BB%84%E6%88%90%E5%A4%9A%E4%B8%AA%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84">2. 组成多个消费者组</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E9%A1%BA%E5%BA%8F%E6%B6%88%E8%B4%B9">顺序消费</a><ul>
+<li><a href="#%E6%96%B9%E6%A1%88%E4%B8%80topic%E4%B8%8B%E5%8F%AA%E6%9C%89%E4%B8%80%E4%B8%AApatition">方案一：topic下只有一个patition。</a></li>
+<li><a href="#%E6%96%B9%E6%A1%88%E4%BA%8C%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%8C%87%E5%AE%9Apatition">方案二：消息发送指定patition</a><ul>
+<li><a href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%BF%9D%E8%AF%81%E9%A1%BA%E5%BA%8F%E6%80%A7">多线程保证顺序性</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E6%B6%88%E6%81%AF%E5%A0%86%E7%A7%AF">消息堆积</a></li>
+</ul>
+<span id="more"></span>
+
+
+<h3 id="消费者端自动提交与手动提交"><a href="#消费者端自动提交与手动提交" class="headerlink" title="消费者端自动提交与手动提交"></a>消费者端自动提交与手动提交</h3><h4 id="消费者端自动提交"><a href="#消费者端自动提交" class="headerlink" title="消费者端自动提交"></a>消费者端自动提交</h4><h5 id="消息丢失"><a href="#消息丢失" class="headerlink" title="消息丢失"></a>消息丢失</h5><p>消息正在处理，此时已经提交offset，但是此时宕机，重启后就消息丢失了。</p>
+<p>消息偏移量是由消费端的自动提交，由异步线程去完成的，业务线程无法控制。如果刚拉取了消息之后，业务处理还没进行完，这时提交了消息偏移量但是这时消费者挂了，这就造成还没进行完业务处理的消息的位移被提交了，下次再消费就消费不到这些消息，造成消息的丢失。</p>
+<h5 id="消息重复消费"><a href="#消息重复消费" class="headerlink" title="消息重复消费"></a>消息重复消费</h5><p>已经处理，此时宕机，但是未提交offset。则重复消费。</p>
+<h4 id="消费者端手动提交"><a href="#消费者端手动提交" class="headerlink" title="消费者端手动提交"></a>消费者端手动提交</h4><h5 id="消息不丢失，但是会重复消费"><a href="#消息不丢失，但是会重复消费" class="headerlink" title="消息不丢失，但是会重复消费"></a>消息不丢失，但是会重复消费</h5><p>先消费，后提交offset。<br><img src="/image-1.png" alt="消息不丢失，但是会重复消费"></p>
+<h5 id="消息不会重复消费，但是会丢失"><a href="#消息不会重复消费，但是会丢失" class="headerlink" title="消息不会重复消费，但是会丢失"></a>消息不会重复消费，但是会丢失</h5><p>先提交offset，后消费。<br><img src="/image-2.png" alt="消息不会重复消费，但是会丢失"></p>
+<h5 id="消息既不丢失也不重复消费"><a href="#消息既不丢失也不重复消费" class="headerlink" title="消息既不丢失也不重复消费"></a>消息既不丢失也不重复消费</h5><ol>
+<li>保证不丢失，但是重复消费，然后做幂等性判断。</li>
+<li>可以使用事务保证。</li>
+</ol>
+<h3 id="消费者保证只消费一次消息"><a href="#消费者保证只消费一次消息" class="headerlink" title="消费者保证只消费一次消息"></a>消费者保证只消费一次消息</h3><ol>
+<li>每个消费者都必须<strong>加入至少一个消费者组。</strong>同一个消费者组内的消费者可以共享消费者的负载。因此，如果一个消息被消费组中的任何一个消费者消费了，那么<strong>其他消费者就不会再收到这个消息</strong>了。</li>
+<li><strong>手动提交offset</strong>，见上述。</li>
+<li>消费者端业务做<strong>幂等处理</strong>，防止消息重复消费。</li>
+<li>使用事务，保证消费者消费和提交offset是原子性的。（但事务主要用于生产消息）</li>
+</ol>
+<h4 id="幂等性与重复消费"><a href="#幂等性与重复消费" class="headerlink" title="幂等性与重复消费"></a>幂等性与重复消费</h4><p>幂等性是指即使消息重复消费，那么最终的结果也是相同的。而防止重复消费是消息不会被重复消费。</p>
+<h4 id="幂等性方案"><a href="#幂等性方案" class="headerlink" title="幂等性方案"></a>幂等性方案</h4><h5 id="唯一性约束"><a href="#唯一性约束" class="headerlink" title="唯一性约束"></a>唯一性约束</h5><p>利用数据库的唯一性约束，如<strong>唯一索引或主键</strong>，来避免插入重复数据。</p>
+<h6 id="去重表"><a href="#去重表" class="headerlink" title="去重表"></a>去重表</h6><ul>
+<li>本质也是唯一索引方案</li>
+</ul>
+<p>去重表是一张专门用于记录请求信息的表，其中某个字段需要建立唯一索引，用于标识请求的唯一性当客户端发出请求时，服务端会将这次请求的一些信息（如订单号、交易流水号等）插入到去重表中，如果插入成功，说明这是第一次请求，可以执行后续的业务逻辑；如果插入失败，说明这是重复请求，可以直接返回或者忽略。</p>
+<h5 id="乐观锁机制"><a href="#乐观锁机制" class="headerlink" title="乐观锁机制"></a>乐观锁机制</h5><p>通过<strong>记录数据的版本号、时间戳或CAS算法</strong>，仅当数据未被其他事务修改时，才允许更新操作执行。每次更新数据时，版本号都会递增。<br>高并发的场景下，乐观锁相比悲观锁来说，不存在锁竞争造成线程阻塞，也不会有死锁的问题，在性能上往往会更胜一筹。但是，如果冲突频繁发生（写占比非常多的情况），会频繁失败和重试（悲观锁的开销是固定的），这样同样会非常影响性能，导致CPU 飙升。不过，这种方法只适用于更新数据的场景。</p>
+<h5 id="悲观锁机制"><a href="#悲观锁机制" class="headerlink" title="悲观锁机制"></a>悲观锁机制</h5><p>synchronized、ReetrantLock。数据库select … for update</p>
+<p>排他锁只能在支持事务的存储引擎中使用，且只能在事务中使用。另外，排他锁只能在有索引的字段上使用，否则会锁住整个表，影响并发性能。高并发的场景下，激烈的锁竞争会造成线程阻塞，大量阻塞线程会导致系统的上下文切换，增加系统的性能开销。并且，悲观锁还可能会存在死锁问题，影响代码的正常运行。</p>
+<h5 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h5><p>redission分布式原理见其他文章。</p>
+<h5 id="Token机制"><a href="#Token机制" class="headerlink" title="Token机制"></a>Token机制</h5><ul>
+<li>为每条消息分配一个messageId,然后记录在如redis中，当使用该消息时，判断是否存在即可判断是否是重复消费；执行业务逻辑完毕删除标识。<br><img src="/image-22.png" alt="alt text"></li>
+</ul>
+<h3 id="防止消息丢失"><a href="#防止消息丢失" class="headerlink" title="防止消息丢失"></a>防止消息丢失</h3><h4 id="生产者端"><a href="#生产者端" class="headerlink" title="生产者端"></a>生产者端</h4><ol>
+<li>我们通常使用Kafka发送消息的时候，通常使用的<strong>producer.send（msg）</strong> 是一种异步发送，发送消息的时候，方法会立即返回，但是并不代表消息一定能发送成功。 <strong>（producer.send （msg）•get（）是同步等待返回的。）</strong> 那么，为了保证消息不丢失，通常会建议使用 <strong>producer.send（msg,callback）</strong> 方法，这个方法支持传入一个callback，我们可以在消息发送时进行重试。</li>
+<li>producer进行相关配置<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ack = -<span class="number">1</span>;</span><br><span class="line">retries = <span class="number">3</span></span><br><span class="line">retry.backoff.ms = <span class="number">300</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h5 id="ack-0-1-1-确认机制"><a href="#ack-0-1-1-确认机制" class="headerlink" title="ack &#x3D; 0,1,-1 确认机制"></a>ack &#x3D; 0,1,-1 确认机制</h5><ul>
+<li>acks &#x3D; 0：表示Producer请求立即返回，不需要等待Leader的任何确认。这种方案有最高的吞吐率，但是不保证消息是否真的发送成功。</li>
+<li>acks &#x3D;-1：表示分区Leader必须等待消息被成功写入到所有的ISR副本（同步副本）中才认为Producer请求成功。这种方案提供最高的消息持久性保证，但是理论上吞吐率也是最差的。</li>
+<li>acks &#x3D;1（默认）：表示Leader副本必须应答此Producer请求并写入消息到本地日志，之后Producer请求被认为成功。如果此时Leader副本应答请求之后挂掉了，消息会丢失。这个方案，提供了不错的持久性保证和吞吐。</li>
+</ul>
+<h4 id="Broker"><a href="#Broker" class="headerlink" title="Broker"></a>Broker</h4><h5 id="1-持久化机制："><a href="#1-持久化机制：" class="headerlink" title="1. 持久化机制："></a>1. 持久化机制：</h5><p>将消息存储到磁盘中。（系统刷盘）</p>
+<h5 id="2-ISR机制"><a href="#2-ISR机制" class="headerlink" title="2. ISR机制"></a>2. ISR机制</h5><p>当消息被写入Kafka的分区时，它首先会被写入Leader，然后Leader将消息复制给ISR中的所有副本。只有当ISR<br>中的所有副本都成功地接收到并确认了消息后，主副本才会认为消息已成功提交。这种机制确保了数据的可靠性和<br>一致性。</p>
+<h4 id="消费者端"><a href="#消费者端" class="headerlink" title="消费者端"></a>消费者端</h4><h5 id="1-手动提交offset"><a href="#1-手动提交offset" class="headerlink" title="1. 手动提交offset"></a>1. 手动提交offset</h5><h5 id="2-组成多个消费者组"><a href="#2-组成多个消费者组" class="headerlink" title="2. 组成多个消费者组"></a>2. 组成多个消费者组</h5><p>当一个消费者组挂掉后，其他消费者组依旧可以消费该消息。</p>
+<h3 id="顺序消费"><a href="#顺序消费" class="headerlink" title="顺序消费"></a>顺序消费</h3><ul>
+<li><strong>同一个patition下，消息是有序的。</strong> 但是不同patition下是无序的。</li>
+</ul>
+<h4 id="方案一：topic下只有一个patition。"><a href="#方案一：topic下只有一个patition。" class="headerlink" title="方案一：topic下只有一个patition。"></a>方案一：topic下只有一个patition。</h4><h4 id="方案二：消息发送指定patition"><a href="#方案二：消息发送指定patition" class="headerlink" title="方案二：消息发送指定patition"></a>方案二：消息发送指定patition</h4><p>指定patition或者指定key值。</p>
+<h5 id="多线程保证顺序性"><a href="#多线程保证顺序性" class="headerlink" title="多线程保证顺序性"></a>多线程保证顺序性</h5><p>并发高需要多线程。可以创建N个队列(patition)，每个队列对应一个线程，就保证了结果的顺序性。但消费端保证不了消费的时间，当一个消费线程结束后可能争抢其他正在消费的线程，所以可以用分布式锁保证一个线程对应一个消费队列，不被其他队列争抢。</p>
+<h3 id="消息堆积"><a href="#消息堆积" class="headerlink" title="消息堆积"></a>消息堆积</h3><ol>
+<li><p>kafka消费能力不足的问题，要在kafka集群里面增加分区数。</p>
+</li>
+<li><p>如果是下游的数据处理不及时，这考虑增加拉取数，在kafka集群到消费者组部分。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag"># 消息队列</a>
+              <a href="/tags/Kafka/" rel="tag"># Kafka</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/08/20/git%E6%93%8D%E4%BD%9C/" rel="prev" title="Git操作">
+      <i class="fa fa-chevron-left"></i> Git操作
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/08/21/Kafka%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97(%E4%B8%80)/" rel="next" title="Kafka学习指南(一)">
+      Kafka学习指南(一) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%AB%AF%E8%87%AA%E5%8A%A8%E6%8F%90%E4%BA%A4%E4%B8%8E%E6%89%8B%E5%8A%A8%E6%8F%90%E4%BA%A4"><span class="nav-number">1.</span> <span class="nav-text">消费者端自动提交与手动提交</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%AB%AF%E8%87%AA%E5%8A%A8%E6%8F%90%E4%BA%A4"><span class="nav-number">1.1.</span> <span class="nav-text">消费者端自动提交</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.1.1.</span> <span class="nav-text">消息丢失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9"><span class="nav-number">1.1.2.</span> <span class="nav-text">消息重复消费</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%AB%AF%E6%89%8B%E5%8A%A8%E6%8F%90%E4%BA%A4"><span class="nav-number">1.2.</span> <span class="nav-text">消费者端手动提交</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1%EF%BC%8C%E4%BD%86%E6%98%AF%E4%BC%9A%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9"><span class="nav-number">1.2.1.</span> <span class="nav-text">消息不丢失，但是会重复消费</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%8D%E4%BC%9A%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%EF%BC%8C%E4%BD%86%E6%98%AF%E4%BC%9A%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.2.2.</span> <span class="nav-text">消息不会重复消费，但是会丢失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%97%A2%E4%B8%8D%E4%B8%A2%E5%A4%B1%E4%B9%9F%E4%B8%8D%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9"><span class="nav-number">1.2.3.</span> <span class="nav-text">消息既不丢失也不重复消费</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E4%BF%9D%E8%AF%81%E5%8F%AA%E6%B6%88%E8%B4%B9%E4%B8%80%E6%AC%A1%E6%B6%88%E6%81%AF"><span class="nav-number">2.</span> <span class="nav-text">消费者保证只消费一次消息</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%82%E7%AD%89%E6%80%A7%E4%B8%8E%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9"><span class="nav-number">2.1.</span> <span class="nav-text">幂等性与重复消费</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%82%E7%AD%89%E6%80%A7%E6%96%B9%E6%A1%88"><span class="nav-number">2.2.</span> <span class="nav-text">幂等性方案</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%94%AF%E4%B8%80%E6%80%A7%E7%BA%A6%E6%9D%9F"><span class="nav-number">2.2.1.</span> <span class="nav-text">唯一性约束</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%8E%BB%E9%87%8D%E8%A1%A8"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">去重表</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B9%90%E8%A7%82%E9%94%81%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.2.</span> <span class="nav-text">乐观锁机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%82%B2%E8%A7%82%E9%94%81%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.3.</span> <span class="nav-text">悲观锁机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">2.2.4.</span> <span class="nav-text">分布式锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Token%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.5.</span> <span class="nav-text">Token机制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B2%E6%AD%A2%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="nav-number">3.</span> <span class="nav-text">防止消息丢失</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E7%AB%AF"><span class="nav-number">3.1.</span> <span class="nav-text">生产者端</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ack-0-1-1-%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">3.1.1.</span> <span class="nav-text">ack &#x3D; 0,1,-1 确认机制</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Broker"><span class="nav-number">3.2.</span> <span class="nav-text">Broker</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6%EF%BC%9A"><span class="nav-number">3.2.1.</span> <span class="nav-text">1. 持久化机制：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-ISR%E6%9C%BA%E5%88%B6"><span class="nav-number">3.2.2.</span> <span class="nav-text">2. ISR机制</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%AB%AF"><span class="nav-number">3.3.</span> <span class="nav-text">消费者端</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E6%89%8B%E5%8A%A8%E6%8F%90%E4%BA%A4offset"><span class="nav-number">3.3.1.</span> <span class="nav-text">1. 手动提交offset</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E7%BB%84%E6%88%90%E5%A4%9A%E4%B8%AA%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84"><span class="nav-number">3.3.2.</span> <span class="nav-text">2. 组成多个消费者组</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E6%B6%88%E8%B4%B9"><span class="nav-number">4.</span> <span class="nav-text">顺序消费</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E4%B8%80%EF%BC%9Atopic%E4%B8%8B%E5%8F%AA%E6%9C%89%E4%B8%80%E4%B8%AApatition%E3%80%82"><span class="nav-number">4.1.</span> <span class="nav-text">方案一：topic下只有一个patition。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E4%BA%8C%EF%BC%9A%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%8C%87%E5%AE%9Apatition"><span class="nav-number">4.2.</span> <span class="nav-text">方案二：消息发送指定patition</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%BF%9D%E8%AF%81%E9%A1%BA%E5%BA%8F%E6%80%A7"><span class="nav-number">4.2.1.</span> <span class="nav-text">多线程保证顺序性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E5%A0%86%E7%A7%AF"><span class="nav-number">5.</span> <span class="nav-text">消息堆积</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Mr.Fang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.Fang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='' opacity='' zIndex='' count='' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

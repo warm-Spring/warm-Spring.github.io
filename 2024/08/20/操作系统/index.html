@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="零拷贝技术 传统的IO读写流程 应用程序发起read()过程 应用程序发起write()过程   mmap(Memory Map File) sendFile DMA direct I&#x2F;O   高性能优化的 I&#x2F;O 虚拟内存 IO模型 同步阻塞IO模型 同步非阻塞IO模型 IO复用 select&#x2F;poll&#x2F;epoll select poll epoll">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统">
+<meta property="og:url" content="http://example.com/2024/08/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="春不寒">
+<meta property="og:description" content="零拷贝技术 传统的IO读写流程 应用程序发起read()过程 应用程序发起write()过程   mmap(Memory Map File) sendFile DMA direct I&#x2F;O   高性能优化的 I&#x2F;O 虚拟内存 IO模型 同步阻塞IO模型 同步非阻塞IO模型 IO复用 select&#x2F;poll&#x2F;epoll select poll epoll">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/image-16.png">
+<meta property="og:image" content="http://example.com/image-17.png">
+<meta property="og:image" content="http://example.com/image-18.png">
+<meta property="og:image" content="http://example.com/image-19.png">
+<meta property="og:image" content="http://example.com/image-20.png">
+<meta property="og:image" content="http://example.com/image-21.png">
+<meta property="og:image" content="http://example.com/image%20(1).jpg">
+<meta property="og:image" content="http://example.com/image-24.png">
+<meta property="og:image" content="http://example.com/image-25.png">
+<meta property="og:image" content="http://example.com/image-26.png">
+<meta property="og:image" content="http://example.com/image-23.png">
+<meta property="og:image" content="http://example.com/image-27.png">
+<meta property="og:image" content="http://example.com/image-28.png">
+<meta property="og:image" content="http://example.com/image-31.png">
+<meta property="og:image" content="http://example.com/image-32.png">
+<meta property="article:published_time" content="2024-08-20T05:11:04.000Z">
+<meta property="article:modified_time" content="2024-09-02T14:33:01.000Z">
+<meta property="article:author" content="Mr.Fang">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/image-16.png">
+
+<link rel="canonical" href="http://example.com/2024/08/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>操作系统 | 春不寒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">春不寒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Mr.Fang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="春不寒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          操作系统
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-08-20 13:11:04" itemprop="dateCreated datePublished" datetime="2024-08-20T13:11:04+08:00">2024-08-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-02 22:33:01" itemprop="dateModified" datetime="2024-09-02T22:33:01+08:00">2024-09-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><a href="#%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF">零拷贝技术</a><ul>
+<li><a href="#%E4%BC%A0%E7%BB%9F%E7%9A%84io%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B">传统的IO读写流程</a><ul>
+<li><a href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%8F%91%E8%B5%B7read%E8%BF%87%E7%A8%8B">应用程序发起read()过程</a></li>
+<li><a href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%8F%91%E8%B5%B7write%E8%BF%87%E7%A8%8B">应用程序发起write()过程</a></li>
+</ul>
+</li>
+<li><a href="#mmapmemory-map-file">mmap(Memory Map File)</a></li>
+<li><a href="#sendfile">sendFile</a></li>
+<li><a href="#dma">DMA</a></li>
+<li><a href="#direct-io">direct I&#x2F;O</a></li>
+</ul>
+</li>
+<li><a href="#%E9%AB%98%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84-io">高性能优化的 I&#x2F;O</a></li>
+<li><a href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98">虚拟内存</a></li>
+<li><a href="#io%E6%A8%A1%E5%9E%8B">IO模型</a><ul>
+<li><a href="#%E5%90%8C%E6%AD%A5%E9%98%BB%E5%A1%9Eio%E6%A8%A1%E5%9E%8B">同步阻塞IO模型</a></li>
+<li><a href="#%E5%90%8C%E6%AD%A5%E9%9D%9E%E9%98%BB%E5%A1%9Eio%E6%A8%A1%E5%9E%8B">同步非阻塞IO模型</a></li>
+<li><a href="#io%E5%A4%8D%E7%94%A8">IO复用</a><ul>
+<li><a href="#selectpollepoll">select&#x2F;poll&#x2F;epoll</a><ul>
+<li><a href="#select">select</a></li>
+<li><a href="#poll">poll</a></li>
+<li><a href="#epoll">epoll</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8io%E6%A8%A1%E5%9E%8B">信号驱动IO模型</a></li>
+<li><a href="#%E5%BC%82%E6%AD%A5io%E6%A8%A1%E5%9E%8B">异步IO模型</a></li>
+</ul>
+</li>
+<li><a href="#%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E7%BA%BF%E7%A8%8B%E9%97%B4%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6">同步机制、进程间同步机制、线程间同步机制</a></li>
+<li><a href="#%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B">进程、线程和协程</a><ul>
+<li><a href="#%E8%BF%9B%E7%A8%8B">进程</a><ul>
+<li><a href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1inter-process-communication">进程间通信(Inter-Process Communication)</a><ul>
+<li><a href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97">消息队列</a></li>
+<li><a href="#%E7%AE%A1%E9%81%93">管道</a></li>
+<li><a href="#%E4%BF%A1%E5%8F%B7%E9%87%8F">信号量</a></li>
+<li><a href="#%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98">共享内存</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E7%BA%BF%E7%A8%8B">线程</a></li>
+<li><a href="#%E5%8D%8F%E7%A8%8B">协程</a><ul>
+<li><a href="#%E8%99%9A%E6%8B%9F%E7%BA%BF%E7%A8%8B">虚拟线程</a><ul>
+<li><a href="#%E8%99%9A%E6%8B%9F%E7%BA%BF%E7%A8%8B%E4%BD%BF%E7%94%A8">虚拟线程使用</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E5%88%86%E9%A1%B5%E4%B8%8E%E5%88%86%E6%AE%B5">分页与分段</a><ul>
+<li><a href="#%E5%88%86%E9%A1%B5">分页</a><ul>
+<li><a href="#%E9%A1%B5%E8%A1%A8">页表</a></li>
+</ul>
+</li>
+<li><a href="#%E5%88%86%E6%AE%B5">分段</a></li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="零拷贝技术"><a href="#零拷贝技术" class="headerlink" title="零拷贝技术"></a>零拷贝技术</h3><h4 id="传统的IO读写流程"><a href="#传统的IO读写流程" class="headerlink" title="传统的IO读写流程"></a>传统的IO读写流程</h4><p><img src="/image-16.png" alt="alt text"></p>
+<ul>
+<li><p>比如使用传统IO模拟<strong>从磁盘读取文件到网络流程</strong></p>
+</li>
+<li><p>经历四次模式切换（用户态和内核态之间的切换）和 四次数据拷贝</p>
+<ol>
+<li>应用程序（这里指 Kafka）利用 DMA copy 从磁盘 load 数据到 read buffer（用户态-&gt;内核态）</li>
+<li>read buffer 到应用程序的缓存区（内核态-&gt;用户态）</li>
+<li>应用程序要发数据到网络上，实际是先写到 socket buffer（用户态-&gt;内核态）</li>
+<li>socket buffer 到 NIC buffer（响应数据写完之后，由内核态返回用户态）</li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p>一些术语：</p>
+<ul>
+<li>read buffer: 读缓冲区，操作系统的 page cache</li>
+<li>socket buffer: 套接字缓冲区，OS 用于管理数据包的字节缓冲区</li>
+<li>NIC buffer: 网卡中的字节缓冲区</li>
+<li>DMA copy: DMA 是 Direct Memory Access 的缩写，是内存控制器的一个功能，可以避免 CPU 的干预，允许硬件（图形卡、声卡、网卡等）直接访问内存 (RAM) 里的某些数据。</li>
+</ul>
+</blockquote>
+<h5 id="应用程序发起read-过程"><a href="#应用程序发起read-过程" class="headerlink" title="应用程序发起read()过程"></a>应用程序发起read()过程</h5><p>发起数据读取的流程如下：</p>
+<ol>
+<li>用户进程通过 read() 函数向 Kernel 发起 System Call，上下文从 user space 切换为 kernel space。</li>
+<li>CPU 利用 DMA 控制器将数据从主存或硬盘拷贝到 kernel space 的读缓冲区（Read Buffer）。</li>
+<li>CPU 将读缓冲区（Read Buffer）中的数据拷贝到 user space 的用户缓冲区（User Buffer）。</li>
+<li>上下文从 kernel space 切换回用户态（User Space），read 调用执行返回。</li>
+</ol>
+<h5 id="应用程序发起write-过程"><a href="#应用程序发起write-过程" class="headerlink" title="应用程序发起write()过程"></a>应用程序发起write()过程</h5><p>用户程序发送网络数据的流程如下：</p>
+<ol>
+<li>用户进程通过 write() 函数向 kernel 发起 System Call，上下文从 user space 切换为 kernel space。</li>
+<li>CPU 将用户缓冲区（User Buffer）中的数据拷贝到 kernel space 的网络缓冲区（Socket Buffer）。</li>
+<li>CPU 利用 DMA 控制器将数据从网络缓冲区（Socket Buffer）拷贝到 NIC 进行数据传输。</li>
+<li>上下文从 kernel space 切换回 user space，write 系统调用执行返回。</li>
+</ol>
+<h4 id="mmap-Memory-Map-File"><a href="#mmap-Memory-Map-File" class="headerlink" title="mmap(Memory Map File)"></a>mmap(Memory Map File)</h4><ul>
+<li>将<strong>内核态和用户态的内存映射到一起</strong>，避免来回拷贝。调用文件的 Read 会把数据先放到内核空间的内存中，然后再复制到用户空间的内存中。</li>
+<li>（不可靠）写到 mmap 中的数据并没有被真正的写到硬盘，操作系统会在程序主动调用 Flush 的时候才把数据真正的写到硬盘。<ul>
+<li>Kafka 提供了一个参数 producer.type 来控制是不是主动 Flush：<ul>
+<li>如果 Kafka 写入到 mmap 之后就立即 Flush，然后再返回 Producer 叫同步 (Sync)。</li>
+<li>如果 Kafka 写入 mmap 之后立即返回 Producer 不调用 Flush 叫异步 (Async)。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/image-17.png" alt="alt text"></p>
+<ul>
+<li>四次模式切换和三次数据拷贝</li>
+</ul>
+<h4 id="sendFile"><a href="#sendFile" class="headerlink" title="sendFile"></a>sendFile</h4><ul>
+<li>只传输数据，不做任何处理</li>
+<li>sendfile 是将读到内核空间的数据，<strong>不经过用户态</strong>，转到 socket buffer，进行网络发送<br><img src="/image-18.png" alt="alt text"></li>
+<li>Linux2.4+之后，DMA gather，可以读page cache中的数据描述信息（内存地址和偏移量）记录到socket cache中，由 DMA 根据这些将数据从读缓冲区拷贝到网卡，相比之前版本减少了一次CPU拷贝的过程。</li>
+</ul>
+<p><img src="/image-19.png" alt="alt text"></p>
+<h4 id="DMA"><a href="#DMA" class="headerlink" title="DMA"></a>DMA</h4><ul>
+<li>正常IO流程，数据拷贝等都是需要CPU参与的。但是大文件的copy就会浪费CPU的效率。</li>
+<li>DMA的全称是Direct Memory Access，作用就是直接将IO设备的数据拷贝到内核缓冲区中。使用DMA的好处就是IO设备到内核之间的数据拷贝不需要CPU的参与，CPU只需要给DMA发送copy指令即可，提高了处理器的利用效率。</li>
+</ul>
+<p><img src="/image-20.png" alt="alt text"></p>
+<h4 id="direct-I-O"><a href="#direct-I-O" class="headerlink" title="direct I&#x2F;O"></a>direct I&#x2F;O</h4><blockquote>
+<p>硬件数据不经过内核态的空间，直接到用户态的内存中。<strong>Direct l&#x2F;O不会经过内核态，而是用户态和设备的直接交互，用户态的写入就是直接写入到磁盘，不会再经过操作系统刷盘处理。</strong> 这样确实拷贝次数减少，读取速度会变快，但是因为操作系统不再负责缓存之类的管理，这就必须交由应用程序自己去做，譬如<strong>MySql就是自己通过Direct I&#x2F;0完成的</strong>，同时Mysql也有一套自己的缓存系统。虽然direct 1&#x2F;0可以直接将文件写入磁盘中，但是文件相关的元信息还是要通过fsync缓存到内核空间中。</p>
+</blockquote>
+<h3 id="高性能优化的-I-O"><a href="#高性能优化的-I-O" class="headerlink" title="高性能优化的 I&#x2F;O"></a>高性能优化的 I&#x2F;O</h3><ul>
+<li>零拷贝技术</li>
+<li>多路复用技术</li>
+<li>页缓存（PageCache）技术</li>
+</ul>
+<h3 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h3><p>现代操作系统使用虚拟内存，即虚拟地址取代物理地址。<strong>多个虚拟内存可以指向同一个物理地址，可以把内核空间和用户空间的虚拟地址映射到同一个物理地址</strong>，这样的话，就可以减少1O 的数据拷贝次数。<br><img src="/image-21.png" alt="alt text"></p>
+<h3 id="IO模型"><a href="#IO模型" class="headerlink" title="IO模型"></a>IO模型</h3><p>当read系统调用发生时，会经历下面几个阶段：</p>
+<ol>
+<li>第一阶段：通过read系统调用，向内核发送读请求；（用户态到内核态）</li>
+<li>第二阶段：内核向硬件发送读指令，并等待读就绪；（CPU给DMA发指令）</li>
+<li>第三阶段：DMA把将要读取的数据复制到指定的内核缓存区中；（DMA处理，将磁盘数据复制到内核缓存区）</li>
+<li>第四阶段：内核将数据从内核缓存区拷贝到用户进程空间中。（内核缓存区将数据拷贝到用户态缓冲区，内核态切换到用户态）<br><img src="/image%20(1).jpg" alt="alt text"></li>
+</ol>
+<h4 id="同步阻塞IO模型"><a href="#同步阻塞IO模型" class="headerlink" title="同步阻塞IO模型"></a>同步阻塞IO模型</h4><p>从系统调用recv到将数据从内核复制到用户空间并返回，在这段时间内进程始终阻塞。（<strong>一二三阶段是阻塞的，四阶段是同步(指用户线程处理业务)的</strong> ）<br><img src="/image-24.png" alt="alt text"></p>
+<h4 id="同步非阻塞IO模型"><a href="#同步非阻塞IO模型" class="headerlink" title="同步非阻塞IO模型"></a>同步非阻塞IO模型</h4><p>在这里recv不管有没有获得到数据都返回，如果没有数据的话就过段时间再调用recv看看，如此循环。（<strong>一二三阶段非阻塞，四阶段同步</strong> ）<br><img src="/image-25.png" alt="alt text"></p>
+<h4 id="IO复用"><a href="#IO复用" class="headerlink" title="IO复用"></a>IO复用</h4><p>在I0复用模型中，调用recv之前会先调用select或poll，这两个系统调用都可以在内核准备好数据（网络数据已经到达内核了）时告知用户进程，它准备好了，这时候再调用recv时是一定有数据的。因此在这一模型中，进程阻塞于select或poll，而没有阻塞在recv上。（<strong>一二三阶段非阻塞，四阶段同步</strong>）<br><img src="/image-26.png" alt="alt text"></p>
+<h5 id="select-poll-epoll"><a href="#select-poll-epoll" class="headerlink" title="select&#x2F;poll&#x2F;epoll"></a>select&#x2F;poll&#x2F;epoll</h5><p>select, poll，和 epoll 都是 Linux 中常见的1&#x2F;0 多路复用技术，它们<strong>可以用于同时监听多个文件描述符（file descriptor，后文简称fd），当任意一个文件描述符就绪时，就能够非阻塞的读写数据。</strong></p>
+<h6 id="select"><a href="#select" class="headerlink" title="select"></a>select</h6><p>select 是最原始的1&#x2F;0 多路复用技术，它的缺点是最多只能监听 1024 个文件描述符。</p>
+<ul>
+<li><strong>数组存储fd</strong> ，需要轮询获取fd</li>
+<li>大量数组被复制于用户态和内核态之间</li>
+</ul>
+<h6 id="poll"><a href="#poll" class="headerlink" title="poll"></a>poll</h6><p>poll 在 select 的基础上增加了支持监听更多的文件描述符的能力，但是复杂度随着监听的文件描述符数量的<br>增加而增加。</p>
+<ul>
+<li><strong>基于链表</strong> ，没有了长度1024的限制。</li>
+</ul>
+<h6 id="epoll"><a href="#epoll" class="headerlink" title="epoll"></a>epoll</h6><p>epoll 在 poll 的基础上进一步优化了复杂度，可以支持更多的文件描述符，并且具有更高的效率。</p>
+<ul>
+<li>不需要遍历所有的fd</li>
+<li>不需要把fd从用户态拷贝到内核态<br><img src="/image-23.png" alt="alt text"></li>
+</ul>
+<h4 id="信号驱动IO模型"><a href="#信号驱动IO模型" class="headerlink" title="信号驱动IO模型"></a>信号驱动IO模型</h4><p>此处会通过调用sigaction注册信号函数，在内核数据准备好的时候系统就中断当前程序，执行信号函数（在这里调用recv）。（<strong>一二三阶段非阻塞，四阶段同步</strong>）<br><img src="/image-27.png" alt="alt text"></p>
+<h4 id="异步IO模型"><a href="#异步IO模型" class="headerlink" title="异步IO模型"></a>异步IO模型</h4><p>调用aio_read令内核把数据准备好，并且复制到用户进程空间后执行事先指定好的函数。（<strong>一二三四阶段异步非阻塞</strong>）<br><img src="/image-28.png" alt="alt text"></p>
+<h3 id="同步机制、进程间同步机制、线程间同步机制"><a href="#同步机制、进程间同步机制、线程间同步机制" class="headerlink" title="同步机制、进程间同步机制、线程间同步机制"></a>同步机制、进程间同步机制、线程间同步机制</h3><h3 id="进程、线程和协程"><a href="#进程、线程和协程" class="headerlink" title="进程、线程和协程"></a>进程、线程和协程</h3><h4 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h4><ol>
+<li>进程是<strong>操作系统资源分配</strong>的基本单位。是程序的一次执行。比如打开一个浏览器、打开一个word文档都是一个进程。</li>
+</ol>
+<h5 id="进程间通信-Inter-Process-Communication"><a href="#进程间通信-Inter-Process-Communication" class="headerlink" title="进程间通信(Inter-Process Communication)"></a>进程间通信(Inter-Process Communication)</h5><h6 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h6><p>消息队列是一种通过消息缓冲区进行通信的机制，进程可以将消息发送到队列，而其他进程则可以从队列中读取消息。</p>
+<h6 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h6><p>使用<strong>半双工</strong>的方式通信。一个进程往管道(pipe)发数据，另一个进程从管道接受数据。</p>
+<h6 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h6><p>信号量是一种用于进程同步和互斥的通信方式。通过信号量，进程可以对资源进行加锁或解锁。</p>
+<h6 id="共享内存"><a href="#共享内存" class="headerlink" title="共享内存"></a>共享内存</h6><p>多个进程可以将同一块内存映射到它们的地址空间中，从而实现共享内存。<br>这样，一个进程对共享内存的写操作会影响到其他进程对相同内存区域的读操作。</p>
+<h4 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h4><ol start="2">
+<li>线程是<strong>CPU处理器调度分配的基本单位，是进程的一个执行单元</strong>，是轻量级的进程。</li>
+</ol>
+<h4 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h4><ol start="3">
+<li>协程是<strong>一种用户空间的轻量级线程，可在用户态自由切换。调度由用户控制，不由操作系统内核调度。</strong></li>
+</ol>
+<ul>
+<li>线程之间的切换是需要时间的，而且多线程也会竞争CPU资源引起不必要的资源浪费；协程可以由用户自己决定什么时候进行切换，而不是由操作系统去做抢占式调度，大大节约了资源。</li>
+</ul>
+<h5 id="虚拟线程"><a href="#虚拟线程" class="headerlink" title="虚拟线程"></a>虚拟线程</h5><ul>
+<li>以前的JDK线程模型就是<strong>一个Java线程对应一个平台线程</strong>（操作系统的轻量级进程），线程的创建、切换都需要系统调用，系统调用涉及内核态到用户态的切换，开销比较大。</li>
+<li>虚拟线程是轻量级的线程，JDK实现的原理是<strong>将多个虚拟线程映射到少量的操作系统线程中</strong>，通过有效的调度来避免上下文切换带来的损耗，<strong>这些虚拟线程是由JVM管理的</strong>。不再是每一个线程都一一对应操作系统的线程了。</li>
+<li>可以在应用程序中创建非常多的虚拟线程，而不依赖于平台线程的数量。这些虚拟线程是由JVM管理的，因此它们不会增加额外的上下文切换开销，因为它们作为普通Java对象存在于RAM内存中。<br><img src="/image-31.png" alt="alt text"></li>
+</ul>
+<h6 id="虚拟线程使用"><a href="#虚拟线程使用" class="headerlink" title="虚拟线程使用"></a>虚拟线程使用</h6><ol>
+<li><code> Thread.startVirtualThread(()-&gt;&#123;&#125;);</code></li>
+<li><code>Thread.Builder t = Thread.ofVirtual().name(&quot;xx&quot;);</code><br><code>t.start(()-&gt;&#123;&#125;);</code><br><code>Thread.Builder t = Thread.ofPlatform().name(&quot;xx&quot;);</code></li>
+<li><code>Executors.newVirtualThreadPerTaskExecutor();</code></li>
+</ol>
+<h3 id="分页与分段"><a href="#分页与分段" class="headerlink" title="分页与分段"></a>分页与分段</h3><h4 id="分页"><a href="#分页" class="headerlink" title="分页"></a>分页</h4><ul>
+<li>获得更大的线性地址空间</li>
+</ul>
+<p>虚拟内存采用分页技术。把物理内存按照固定大小分为页面（一般是4KB）。通过分页，可以更细粒度的管理物理内存和虚拟空间的映射，也可以更高效的利用物理内存。对于一个64KB的虚拟地址和32KB的物理地址来说：<br><img src="/image-32.png" alt="alt text"><br>如果用户访问到的虚拟地址还没有分配物理地址，那么系统就会发生缺页中断。将需要访问的页面装载到页框中，修改MMU中的映射关系，重新返回。</p>
+<h5 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h5><p>对于虚拟地址和物理地址的映射关系的存储，我们一般是通过页表来完成的。页表中会记录虚拟地址的虚拟页号和偏移量，以及其对应的实际页框号。</p>
+<h4 id="分段"><a href="#分段" class="headerlink" title="分段"></a>分段</h4><ul>
+<li>使程序和数据被划分为逻辑上独立的空间（代码段、数据段、堆段、栈段）</li>
+</ul>
+<p>在分段系统中，程序的地址空间被划分为多个逻辑段，每个段都有自己的起始地址和长度。主要目的是为了更好地组织和管理程序的内存空间，提供更灵活的内存分配和保护机制。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/08/20/%E7%AE%97%E6%B3%95-%E5%8F%8C%E6%8C%87%E9%92%88/" rel="prev" title="双指针">
+      <i class="fa fa-chevron-left"></i> 双指针
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/08/20/Linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" rel="next" title="Linux常用命令">
+      Linux常用命令 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF"><span class="nav-number">1.</span> <span class="nav-text">零拷贝技术</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F%E7%9A%84IO%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">传统的IO读写流程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%8F%91%E8%B5%B7read-%E8%BF%87%E7%A8%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">应用程序发起read()过程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%8F%91%E8%B5%B7write-%E8%BF%87%E7%A8%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">应用程序发起write()过程</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mmap-Memory-Map-File"><span class="nav-number">1.2.</span> <span class="nav-text">mmap(Memory Map File)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sendFile"><span class="nav-number">1.3.</span> <span class="nav-text">sendFile</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DMA"><span class="nav-number">1.4.</span> <span class="nav-text">DMA</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#direct-I-O"><span class="nav-number">1.5.</span> <span class="nav-text">direct I&#x2F;O</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84-I-O"><span class="nav-number">2.</span> <span class="nav-text">高性能优化的 I&#x2F;O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="nav-number">3.</span> <span class="nav-text">虚拟内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IO%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">IO模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E9%98%BB%E5%A1%9EIO%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.1.</span> <span class="nav-text">同步阻塞IO模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E9%9D%9E%E9%98%BB%E5%A1%9EIO%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.2.</span> <span class="nav-text">同步非阻塞IO模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IO%E5%A4%8D%E7%94%A8"><span class="nav-number">4.3.</span> <span class="nav-text">IO复用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#select-poll-epoll"><span class="nav-number">4.3.1.</span> <span class="nav-text">select&#x2F;poll&#x2F;epoll</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#select"><span class="nav-number">4.3.1.1.</span> <span class="nav-text">select</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#poll"><span class="nav-number">4.3.1.2.</span> <span class="nav-text">poll</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#epoll"><span class="nav-number">4.3.1.3.</span> <span class="nav-text">epoll</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8IO%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.4.</span> <span class="nav-text">信号驱动IO模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5IO%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.5.</span> <span class="nav-text">异步IO模型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E3%80%81%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E3%80%81%E7%BA%BF%E7%A8%8B%E9%97%B4%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6"><span class="nav-number">5.</span> <span class="nav-text">同步机制、进程间同步机制、线程间同步机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B"><span class="nav-number">6.</span> <span class="nav-text">进程、线程和协程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B"><span class="nav-number">6.1.</span> <span class="nav-text">进程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-Inter-Process-Communication"><span class="nav-number">6.1.1.</span> <span class="nav-text">进程间通信(Inter-Process Communication)</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">6.1.1.1.</span> <span class="nav-text">消息队列</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E7%AE%A1%E9%81%93"><span class="nav-number">6.1.1.2.</span> <span class="nav-text">管道</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="nav-number">6.1.1.3.</span> <span class="nav-text">信号量</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98"><span class="nav-number">6.1.1.4.</span> <span class="nav-text">共享内存</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B"><span class="nav-number">6.2.</span> <span class="nav-text">线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">6.3.</span> <span class="nav-text">协程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E7%BA%BF%E7%A8%8B"><span class="nav-number">6.3.1.</span> <span class="nav-text">虚拟线程</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E7%BA%BF%E7%A8%8B%E4%BD%BF%E7%94%A8"><span class="nav-number">6.3.1.1.</span> <span class="nav-text">虚拟线程使用</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%A1%B5%E4%B8%8E%E5%88%86%E6%AE%B5"><span class="nav-number">7.</span> <span class="nav-text">分页与分段</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E9%A1%B5"><span class="nav-number">7.1.</span> <span class="nav-text">分页</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%A1%B5%E8%A1%A8"><span class="nav-number">7.1.1.</span> <span class="nav-text">页表</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E6%AE%B5"><span class="nav-number">7.2.</span> <span class="nav-text">分段</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Mr.Fang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.Fang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='' opacity='' zIndex='' count='' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
