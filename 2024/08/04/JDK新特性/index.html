@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Jdk新特性 Jdk8新特性 Jdk11新特性 Jdk17新特性 Jdk21新特性 jdk垃圾回收器默认">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDK新特性">
+<meta property="og:url" content="http://example.com/2024/08/04/JDK%E6%96%B0%E7%89%B9%E6%80%A7/index.html">
+<meta property="og:site_name" content="春不寒">
+<meta property="og:description" content="Jdk新特性 Jdk8新特性 Jdk11新特性 Jdk17新特性 Jdk21新特性 jdk垃圾回收器默认">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-08-04T05:11:04.000Z">
+<meta property="article:modified_time" content="2024-09-09T07:49:49.446Z">
+<meta property="article:author" content="Mr.Fang">
+<meta property="article:tag" content="JDK新特性">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/08/04/JDK%E6%96%B0%E7%89%B9%E6%80%A7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JDK新特性 | 春不寒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">春不寒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/04/JDK%E6%96%B0%E7%89%B9%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Mr.Fang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="春不寒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JDK新特性
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-08-04 13:11:04" itemprop="dateCreated datePublished" datetime="2024-08-04T13:11:04+08:00">2024-08-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-09 15:49:49" itemprop="dateModified" datetime="2024-09-09T15:49:49+08:00">2024-09-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">Java基础知识</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><a href="#jdk%E6%96%B0%E7%89%B9%E6%80%A7">Jdk新特性</a><ul>
+<li><a href="#jdk8%E6%96%B0%E7%89%B9%E6%80%A7">Jdk8新特性</a></li>
+<li><a href="#jdk11%E6%96%B0%E7%89%B9%E6%80%A7">Jdk11新特性</a></li>
+<li><a href="#jdk17%E6%96%B0%E7%89%B9%E6%80%A7">Jdk17新特性</a></li>
+<li><a href="#jdk21%E6%96%B0%E7%89%B9%E6%80%A7">Jdk21新特性</a></li>
+<li><a href="#jdk%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E9%BB%98%E8%AE%A4">jdk垃圾回收器默认</a></li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="Jdk新特性"><a href="#Jdk新特性" class="headerlink" title="Jdk新特性"></a>Jdk新特性</h3><h4 id="Jdk8新特性"><a href="#Jdk8新特性" class="headerlink" title="Jdk8新特性"></a>Jdk8新特性</h4><ol>
+<li>lamada表达式</li>
+</ol>
+<p><code>(a,b)-&gt;&#123;return a-b&#125;</code></p>
+<ol start="2">
+<li><p>stream流<br><code>stream().map().filter().mapToInt().toCollect();</code></p>
+</li>
+<li><p>函数式编程<br>Function():  a func(T b);<br>Consume():   void func(T b);<br>Supplier():   a func();<br>Runnable(): void func();<br>Predicate(): boolean test(T t);</p>
+</li>
+<li><p>方法引用</p>
+</li>
+</ol>
+<p><code>LambdaInterface t = LambdaClass::staticF;</code></p>
+<ol start="5">
+<li><p>Optional防止空值</p>
+</li>
+<li><p>default</p>
+</li>
+<li><p>新的日期API</p>
+</li>
+</ol>
+<p><code>java.time.*;LocalDate</code></p>
+<h4 id="Jdk11新特性"><a href="#Jdk11新特性" class="headerlink" title="Jdk11新特性"></a>Jdk11新特性</h4><ol>
+<li>var 本地变量类型推断</li>
+</ol>
+<p><code>var value = new MyObject ();</code></p>
+<ol start="2">
+<li><p>try-with-resource增强<br>允许使用（）外面的变量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="type">Scanner</span> <span class="variable">scanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Scanner</span>(<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;testRead.txt&quot;</span>));</span><br><span class="line"><span class="type">PrintWriter</span> <span class="variable">writer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PrintWriter</span>(<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;testWrite.txt&quot;</span>))</span><br><span class="line"><span class="keyword">try</span> (scanner;writer) &#123;</span><br><span class="line">    <span class="comment">// omitted</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>工作原理：在 try-with-resources 语句中声明的资源会在 try 语句块结束时自动调用 close() 方法关闭资源。这一过程由 Java 虚拟机（JVM）自动管理，即使在 try 语句块中发生了异常也不会影响资源的关闭。这里的 scanner,writer 必须实现 AutoCloseable 接口，该接口定义了一个 close() 方法，用于关闭资源。</p>
+</li>
+<li><p>G1成为默认垃圾回收器（jdk9）</p>
+</li>
+<li><p>引入ZGC垃圾回收器</p>
+</li>
+</ol>
+<h4 id="Jdk17新特性"><a href="#Jdk17新特性" class="headerlink" title="Jdk17新特性"></a>Jdk17新特性</h4><ol>
+<li><p>switch yield返回</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="keyword">switch</span> (x)&#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&quot;1&quot;</span> →&gt; <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&quot;2&quot;</span> → <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">default</span> →&gt; &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">len</span> <span class="operator">=</span> args [<span class="number">1</span>]. length();</span><br><span class="line">        <span class="keyword">yield</span> len;</span><br><span class="line">    &#125;</span><br><span class="line">｝；</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>‘’’ ‘’’文本块可转义</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">SHERE EMPT TEAR FROM EMPLOYEE_ TB</span></span><br><span class="line"><span class="string">ORDER BY &#x27;EMP_ID&#x27;, &#x27;LAST_NAME* ;</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p>Record字段类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">record</span> <span class="title class_">Person</span> (String firstName, String lastName) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+<li><p>sealed permits封闭类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">sealed</span> <span class="keyword">class</span> <span class="title class_">Vehicle</span> <span class="keyword">permits</span> Car, Truck &#123;</span><br><span class="line">｝</span><br></pre></td></tr></table></figure>
+
+</li>
+<li><p>instance of模式匹配</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (animal <span class="keyword">instanceof</span> Cat cat) &#123;</span><br><span class="line">    cat.miao();</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span>(animal <span class="keyword">instanceof</span> Dog dog) &#123;</span><br><span class="line">    dog.bark();</span><br></pre></td></tr></table></figure>
+
+</li>
+<li><p>switch模式匹配</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> String <span class="title function_">formatterPatternSwitch</span><span class="params">(Object o)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">switch</span> (o)&#123;</span><br><span class="line">        <span class="keyword">case</span> Integer i -&gt; String.format(<span class="string">&quot;int %d&quot;</span>, i);</span><br><span class="line">        <span class="keyword">case</span> Long l  -&gt;String. format (<span class="string">&quot;long%d&quot;</span>, l);</span><br><span class="line">        <span class="keyword">case</span> Double d &gt; String. format (<span class="string">&quot;double %f&quot;</span>, d);</span><br><span class="line">        <span class="keyword">case</span> Strings → String. format (<span class="string">&quot;String %s&quot;</span>, s);</span><br><span class="line">        <span class="keyword">default</span> -&gt; o.toString();</span><br><span class="line">    &#125;;</span><br><span class="line">｝</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="Jdk21新特性"><a href="#Jdk21新特性" class="headerlink" title="Jdk21新特性"></a>Jdk21新特性</h4><ol>
+<li>虚拟线程</li>
+<li>分代ZGC</li>
+</ol>
+<h4 id="jdk垃圾回收器默认"><a href="#jdk垃圾回收器默认" class="headerlink" title="jdk垃圾回收器默认"></a>jdk垃圾回收器默认</h4><p>在 Java 8 的时候，默认垃圾回收器是 Parallel Scavenge（新生代）+Parallel Old（老年代）。到了 Java 9, CMS 垃圾回收器被废弃了，G1（Garbage-First Garbage Collector） 成为了默认垃圾回收器。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JDK%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag"># JDK新特性</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/05/27/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="prev" title="操作系统">
+      <i class="fa fa-chevron-left"></i> 操作系统
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/08/05/Java%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" rel="next" title="Java基础知识">
+      Java基础知识 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Jdk%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-number">1.</span> <span class="nav-text">Jdk新特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Jdk8%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">Jdk8新特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Jdk11%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">Jdk11新特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Jdk17%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-number">1.3.</span> <span class="nav-text">Jdk17新特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Jdk21%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-number">1.4.</span> <span class="nav-text">Jdk21新特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#jdk%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E9%BB%98%E8%AE%A4"><span class="nav-number">1.5.</span> <span class="nav-text">jdk垃圾回收器默认</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Mr.Fang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.Fang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='' opacity='' zIndex='' count='' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

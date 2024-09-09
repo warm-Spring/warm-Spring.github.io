@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Java基础 面向对象和面向过程的区别 面向对象三大特性 接口和抽象类区别 重写和重载   Java异常机制 反射 动态代理   序列化和反序列化 泛型   IO流 枚举 Java集合 集合结构 ArrayList扩容机制 HashMap集合 底层结构 get()方法 put()方法 remove()方法 如何定位key(通过哈希值计算出数组中的索引位置) 为什么（table.length -">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java基础知识">
+<meta property="og:url" content="http://example.com/2024/08/05/Java%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="春不寒">
+<meta property="og:description" content="Java基础 面向对象和面向过程的区别 面向对象三大特性 接口和抽象类区别 重写和重载   Java异常机制 反射 动态代理   序列化和反序列化 泛型   IO流 枚举 Java集合 集合结构 ArrayList扩容机制 HashMap集合 底层结构 get()方法 put()方法 remove()方法 如何定位key(通过哈希值计算出数组中的索引位置) 为什么（table.length -">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/image%20(2).jpg">
+<meta property="og:image" content="http://example.com/image-34.png">
+<meta property="og:image" content="http://example.com/image-35.png">
+<meta property="article:published_time" content="2024-08-05T05:11:04.000Z">
+<meta property="article:modified_time" content="2024-09-09T08:07:41.918Z">
+<meta property="article:author" content="Mr.Fang">
+<meta property="article:tag" content="Java基础">
+<meta property="article:tag" content="IO流">
+<meta property="article:tag" content="字符串">
+<meta property="article:tag" content="集合">
+<meta property="article:tag" content="异常">
+<meta property="article:tag" content="反射">
+<meta property="article:tag" content="泛型">
+<meta property="article:tag" content="序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/image%20(2).jpg">
+
+<link rel="canonical" href="http://example.com/2024/08/05/Java%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java基础知识 | 春不寒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">春不寒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/05/Java%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Mr.Fang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="春不寒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java基础知识
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-08-05 13:11:04" itemprop="dateCreated datePublished" datetime="2024-08-05T13:11:04+08:00">2024-08-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-09 16:07:41" itemprop="dateModified" datetime="2024-09-09T16:07:41+08:00">2024-09-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">Java基础知识</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><a href="#java%E5%9F%BA%E7%A1%80">Java基础</a><ul>
+<li><a href="#%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E5%92%8C%E9%9D%A2%E5%90%91%E8%BF%87%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB">面向对象和面向过程的区别</a></li>
+<li><a href="#%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E4%B8%89%E5%A4%A7%E7%89%B9%E6%80%A7">面向对象三大特性</a></li>
+<li><a href="#%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB%E5%8C%BA%E5%88%AB">接口和抽象类区别</a></li>
+<li><a href="#%E9%87%8D%E5%86%99%E5%92%8C%E9%87%8D%E8%BD%BD">重写和重载</a></li>
+</ul>
+</li>
+<li><a href="#java%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6">Java异常机制</a><ul>
+<li><a href="#%E5%8F%8D%E5%B0%84">反射</a><ul>
+<li><a href="#%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86">动态代理</a></li>
+</ul>
+</li>
+<li><a href="#%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96">序列化和反序列化</a></li>
+<li><a href="#%E6%B3%9B%E5%9E%8B">泛型</a></li>
+</ul>
+</li>
+<li><a href="#io%E6%B5%81">IO流</a></li>
+<li><a href="#%E6%9E%9A%E4%B8%BE">枚举</a></li>
+<li><a href="#java%E9%9B%86%E5%90%88">Java集合</a><ul>
+<li><a href="#%E9%9B%86%E5%90%88%E7%BB%93%E6%9E%84">集合结构</a></li>
+<li><a href="#arraylist%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6">ArrayList扩容机制</a></li>
+<li><a href="#hashmap%E9%9B%86%E5%90%88">HashMap集合</a><ul>
+<li><a href="#%E5%BA%95%E5%B1%82%E7%BB%93%E6%9E%84">底层结构</a></li>
+<li><a href="#get%E6%96%B9%E6%B3%95">get()方法</a></li>
+<li><a href="#put%E6%96%B9%E6%B3%95">put()方法</a></li>
+<li><a href="#remove%E6%96%B9%E6%B3%95">remove()方法</a></li>
+<li><a href="#%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8Dkey%E9%80%9A%E8%BF%87%E5%93%88%E5%B8%8C%E5%80%BC%E8%AE%A1%E7%AE%97%E5%87%BA%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E4%BD%8D%E7%BD%AE">如何定位key(通过哈希值计算出数组中的索引位置)</a><ul>
+<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88tablelength---1-keyhashcode-keyhashcode--16">为什么（table.length - 1）&amp; （key.hashCode ^（key.hashCode &gt;&gt;&gt; 16））</a></li>
+</ul>
+</li>
+<li><a href="#hashmap%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6">HashMap扩容机制</a></li>
+</ul>
+</li>
+<li><a href="#hashmap%E5%9C%A8%E5%B9%B6%E5%8F%91%E4%B8%8B%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84%E5%8E%9F%E5%9B%A0">HashMap在并发下不安全的原因</a><ul>
+<li><a href="#%E5%BD%93put%E6%97%B6hashmap%E5%8F%AF%E8%83%BD%E4%BC%9A%E6%89%A9%E5%AE%B9%E5%A4%B4%E6%8F%92%E6%B3%95%E6%AD%BB%E5%BE%AA%E7%8E%AF">当put时，hashmap可能会扩容，头插法死循环</a></li>
+</ul>
+</li>
+<li><a href="#hashmaphashtableconcurrenthashmap%E5%8C%BA%E5%88%AB">HashMap,HashTable,ConcurrentHashMap区别</a></li>
+<li><a href="#concurrenthashmap%E7%9A%84%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">ConcurrentHashMap的底层数据结构</a></li>
+<li><a href="#%E7%BA%A2%E9%BB%91%E6%A0%91">红黑树</a></li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+<h3 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h3><h4 id="面向对象和面向过程的区别"><a href="#面向对象和面向过程的区别" class="headerlink" title="面向对象和面向过程的区别"></a>面向对象和面向过程的区别</h4><p>面向过程是把解决问题的过程拆成一个个方法，通过一个个方法的执行解决问题。</p>
+<p>面向对象是把解决问题的方式抽象成对象，利用对象执行方法解决问题。</p>
+<h4 id="面向对象三大特性"><a href="#面向对象三大特性" class="headerlink" title="面向对象三大特性"></a>面向对象三大特性</h4><ol>
+<li><p>封装：封装是把一个对象的状态信息隐藏在对象内部，不允许外部直接访问对象内部信息，但是会提供一些方法可供外界访问。（安全性）</p>
+</li>
+<li><p>继承：一个子类继承父类，子类可以继承父类的所有方法和属性。就是在一个已存在类的基础上建立新类的技术，新的类可以增加新的定义和新的功能。（可重用性和扩展性）</p>
+</li>
+<li><p>多态：表示一个对象可以有多种状态，具体的表现是父类的引用指向子类的实例。<br>声明一个对象可以是它的父类或接口，但在运行时执行它的方法是根据对象的实际类型来执行的。</p>
+</li>
+</ol>
+<h4 id="接口和抽象类区别"><a href="#接口和抽象类区别" class="headerlink" title="接口和抽象类区别"></a>接口和抽象类区别</h4><p>相同点：</p>
+<ol>
+<li>接口和抽象类不能直接被实例化，要通过实现或者继承才能实例化。</li>
+<li>接口和抽象类都可以包含抽象方法。</li>
+</ol>
+<p>不同点：</p>
+<ol>
+<li>接口强调的是类功能的实现，对行为的约束，如Cook接口，实现类实现Cook类里的功能。抽象类强调的是类的从属关系，如Animals抽象类，子类为cat,dog</li>
+<li>一个类只能继承一个抽象类，可以实现多个接口。</li>
+<li>抽象类可以有构造函数，接口没有</li>
+<li>抽象类可以有抽象方法和非抽象方法，接口只有抽象方法，后来jdk1.8引入default可以非抽象方法。</li>
+</ol>
+<h4 id="重写和重载"><a href="#重写和重载" class="headerlink" title="重写和重载"></a>重写和重载</h4><ol>
+<li><p>重写是子类对父类的方法重写。方法名、参数列表、返回值(子类中方法的返回值可以是父类中方法返回值的子类)都相同。方法体可以修改。子类函数的访问修饰权限不能少于父类的。</p>
+</li>
+<li><p>重载是同一类中，不同方法的重载。方法名是相同的，参数列表不同，返回值可以不同（无法以返回型别作为重载函数的区分标准）。</p>
+</li>
+</ol>
+<h3 id="Java异常机制"><a href="#Java异常机制" class="headerlink" title="Java异常机制"></a>Java异常机制</h3><p>异常的顶层是Throwable，有两个子类Exception,Error。</p>
+<p>Exception又分为两种，受检查异常(Checked Exception,必须处理)和不受检查异常(Uncheck Exception，可以不处理)。</p>
+<p>不受检查异常(Uncheck Exception)也就是运行时异常，如：NullPointerException空指针异常，ArrayIndexOutOfBoundsException数组越界异常，ClassCastException类型转换错误。</p>
+<p>受检查异常是除了运行时异常之外的异常，如IOException, ClassNotFoundException, SQLException, FileNotFoundException。</p>
+<p>Error是程序无法处理的错误，如OOM内存溢出、StackOverFlowError栈溢出。</p>
+<ul>
+<li>当 try 语句和 finally 语句中都有 return 语句时，try 语句块中的 return 语句会被忽略。这是因为 try 语句中的 return 返回值会先被暂存在一个本地变量中，当执行到 finally 语句中的 return 之后，这个本地变量的值就变为了 finally 语句中的 return 返回值。</li>
+</ul>
+<h4 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h4><ul>
+<li>概念：通过反射可以在运行时动态的获取任意一个类的方法和属性，并且可以调用。也就是在程序运行时动态加载类并获取类的详细信息，从而操作类的方法和属性。</li>
+<li>本质：JVM得到class对象之后，再通过class对象进行反编译，从而获取对象的各种信息。</li>
+<li>应用场景：注解、Spring\MyBatis框架</li>
+</ul>
+<h5 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h5><h4 id="序列化和反序列化"><a href="#序列化和反序列化" class="headerlink" title="序列化和反序列化"></a>序列化和反序列化</h4><ul>
+<li>序列化：将数据结构或对象转换成二进制字节流的过程</li>
+<li>反序列化：将在序列化过程中所生成的二进制字节流转换成数据结构或者对象的过程</li>
+<li>transient表示不想序列化的字段</li>
+</ul>
+<h4 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h4><ol>
+<li><p>泛型类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//此处T可以随便写为任意标识，常见的如T、E、K、V等形式的参数常用于表示泛型</span></span><br><span class="line"><span class="comment">//在实例化泛型类时，必须指定T的具体类型</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Generic</span>&lt;T&gt;&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> T key;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Generic</span><span class="params">(T key)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> T <span class="title function_">getKey</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> key;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>泛型接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Generator</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span> T <span class="title function_">method</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+</li>
+<li><p>泛型方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt; E &gt; <span class="keyword">void</span> <span class="title function_">printArray</span><span class="params">( E[] inputArray )</span></span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">for</span> ( E element : inputArray )&#123;</span><br><span class="line">        System.out.printf( <span class="string">&quot;%s &quot;</span>, element );</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="IO流"><a href="#IO流" class="headerlink" title="IO流"></a>IO流</h3><p>IO流包括Input&#x2F;Output 字节流，Reader&#x2F;Writer字符流。</p>
+<p>如果涉及图片音频用字节流，涉及字符用字符流。（原因是如果是字节流，如果不知道编码类型，容易出现乱码问题。）</p>
+<p>还有一个字节&#x2F;符缓冲流（将字节&#x2F;字符放入缓冲区，一次读取&#x2F;写入多个字节，从而避免频繁IO操作，提高流的传输效率。）</p>
+<h3 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">Color</span> &#123;  </span><br><span class="line">    RED(<span class="string">&quot;红色&quot;</span>, <span class="number">1</span>), GREEN(<span class="string">&quot;绿色&quot;</span>, <span class="number">2</span>), BLANK(<span class="string">&quot;白色&quot;</span>, <span class="number">3</span>), YELLO(<span class="string">&quot;黄色&quot;</span>, <span class="number">4</span>);  </span><br><span class="line">    <span class="comment">// 成员变量  </span></span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> index;  </span><br><span class="line">    <span class="comment">// 构造方法  </span></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Color</span><span class="params">(String name, <span class="type">int</span> index)</span> &#123;  </span><br><span class="line">        <span class="built_in">this</span>.name = name;  </span><br><span class="line">        <span class="built_in">this</span>.index = index;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="comment">// 普通方法  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">getName</span><span class="params">(<span class="type">int</span> index)</span> &#123;  </span><br><span class="line">        <span class="keyword">for</span> (Color c : Color.values()) &#123;  </span><br><span class="line">            <span class="keyword">if</span> (c.getIndex() == index) &#123;  </span><br><span class="line">                <span class="keyword">return</span> c.name;  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="comment">// get set 方法  </span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> name;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;  </span><br><span class="line">        <span class="built_in">this</span>.name = name;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getIndex</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> index;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setIndex</span><span class="params">(<span class="type">int</span> index)</span> &#123;  </span><br><span class="line">        <span class="built_in">this</span>.index = index;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="Java集合"><a href="#Java集合" class="headerlink" title="Java集合"></a>Java集合</h3><h4 id="集合结构"><a href="#集合结构" class="headerlink" title="集合结构"></a>集合结构</h4><p><img src="/image%20(2).jpg" alt="alt text"></p>
+<h4 id="ArrayList扩容机制"><a href="#ArrayList扩容机制" class="headerlink" title="ArrayList扩容机制"></a>ArrayList扩容机制</h4><p>使用无参构造时初始容量为0；当添加第一个元素时，默认容量为10；当添加的元素超过容量时，会扩容为原来的1.5倍。</p>
+<p>扩容策略：ArrayList在扩容时，会创建一个新的容量更大的数组，并将原有元素复制到新数组中。</p>
+<h4 id="HashMap集合"><a href="#HashMap集合" class="headerlink" title="HashMap集合"></a>HashMap集合</h4><h5 id="底层结构"><a href="#底层结构" class="headerlink" title="底层结构"></a>底层结构</h5><p>jdk1.7之前是数组+链表的结构，jdk1.8之后是Entry数组+链表&#x2F;红黑树。当链表的节点个数达到8时，会将链表转为红黑树；当红黑树的节点个数小于等于6时，又会将红黑树转为链表（在红黑树上增加了双向链表，是为了更好的相互转换）。在转换为红黑树之前会先判断当前数组的容量是否超过64，若未超过，则会优先进行数组扩容。</p>
+<p>（阈值为8，原因为开发者经过实践，节点数超过8的概率很小，几百万分之一。若发生则说明往后冲突概率会变大。）</p>
+<h5 id="get-方法"><a href="#get-方法" class="headerlink" title="get()方法"></a>get()方法</h5><ol>
+<li>首先，需要计算键的哈希值，并通过哈希值计算出在数组中的索引位置。</li>
+<li>如果该位置上的元素为空，说明没有找到对应的键值对，直接返回null。</li>
+<li>如果该位置上的元素不为空，遍历该位置上的元素，如果找到了与当前键相等的键值对，那么返回该键值对的<br>值，否则返回null。</li>
+</ol>
+<h5 id="put-方法"><a href="#put-方法" class="headerlink" title="put()方法"></a>put()方法</h5><ol>
+<li>首先，put方法会计算键的哈希值（通过调用hash方法），并通过哈希值计算出在数组中的索引位置。</li>
+<li>如果该位置上的元素次空，那么直接将键值对存储在该位置上。</li>
+<li>如果该位置上的元素不为空，那么遍历该位置上的元素，如果找到了与当前键相等的键值对，那么将该键值对<br>的值更新为当前值，并返回旧值。</li>
+<li>如果该位置上的元素不为空，但没有与当前键相等的键值对，那么将键值对插入到链表或红黑树中（如果该位<br>置上的元素数量超过了一个阈值，就会将链表转化为红黑树来提高效率）。</li>
+<li>如果插入成功，返回被替换的值；如果插入失败，返回null。</li>
+<li>插入成功后，如果需要扩容，那么就进行一次扩容操作。</li>
+</ol>
+<h5 id="remove-方法"><a href="#remove-方法" class="headerlink" title="remove()方法"></a>remove()方法</h5><ol>
+<li>首先，remove方法会计算键的哈希值，并通过哈希值计算出在数组中的索引位置。</li>
+<li>如果该位置上的元素为空，说明没有找到对应的键值对，直接返回null。</li>
+<li>如果该位置上的元素不空，检查是否与当前键相等，如果相等，那么将该键值对删除，并返回该键值对的<br>值。<br>4.如果该位置上的元素不为空，但也与当前键不相等，那么就需要在链表或红黑树中继续查找。<br>5.遍历链表或者红黑树，查找与当前键相等的键值对，找到则将该键值对删除，并返回该键值对的值，否则返回<br>null.</li>
+</ol>
+<h5 id="如何定位key-通过哈希值计算出数组中的索引位置"><a href="#如何定位key-通过哈希值计算出数组中的索引位置" class="headerlink" title="如何定位key(通过哈希值计算出数组中的索引位置)"></a>如何定位key(通过哈希值计算出数组中的索引位置)</h5><p>先通过<code>（table.length - 1）&amp; （key.hashCode ^（key.hashCode &gt;&gt;&gt; 16））</code>定位到key位于哪个table中，然后再通过 <code>key.equals（rowKey）</code>来判断两个key是否相同，综上，是先通过hashCode和来定位KEY的。</p>
+<ul>
+<li>为什么要重写hashcode 和equal方法？<br>所以，在使用HashMap的时候，<strong>尽量用String和Enum等已经实现过hashCode和equals方法的官方库类，如果一定要自己的类，就一定要实现hashCode和equals方法。</strong></li>
+</ul>
+<h6 id="为什么（table-length-1）-（key-hashCode-（key-hashCode-16））"><a href="#为什么（table-length-1）-（key-hashCode-（key-hashCode-16））" class="headerlink" title="为什么（table.length - 1）&amp; （key.hashCode ^（key.hashCode &gt;&gt;&gt; 16））"></a>为什么（table.length - 1）&amp; （key.hashCode ^（key.hashCode &gt;&gt;&gt; 16））</h6><p>1.为什么是用&amp;而不是用%：因为&amp;是基于内存的二进制直接运算，比转成十进制的取模快的多。以下运算等价：X % 2^n &#x3D; X &amp; （2^n - 1）。这也是hashMap每次扩容都要到2^n的原因之一。<br>2. 为什么用key.hash^（key.hash &gt;&gt; 16）而不是用key.hash：这是因为增加了扰动计算，使得hash分布的尽可能均匀。因为hashCode是int类型，虽然能映射40亿左右的空间，但是，HashMap的table.lengthequals毕竟不可能有那么大，所以为了使hash%table.length之后，分布的尽可能均匀，就需要对实例的hashCode的值进行扰动，说白了，就是将hashCode的高16和低16位，进行异或，使得hashCode的值更加分散一点。</p>
+<h5 id="HashMap扩容机制"><a href="#HashMap扩容机制" class="headerlink" title="HashMap扩容机制"></a>HashMap扩容机制</h5><p>HashMap刚创建时，若没有指定大小，则默认大小为16。之后每次扩容，扩容为原来的2倍。若指定大小，则扩充为该大小的2的幂次方。负载因子是0.75（泊松分布）.</p>
+<p>当达到负载因子时：</p>
+<ol>
+<li>如果某桶节点没有形成链表，则直接rehash到其他桶中</li>
+<li>如果桶中形成链表，则将链表重新链接</li>
+<li>如果桶中的链表已经形成红黑树，但是链表中的元素个数小于6，则进行取消树化的操作</li>
+</ol>
+<h4 id="HashMap在并发下不安全的原因"><a href="#HashMap在并发下不安全的原因" class="headerlink" title="HashMap在并发下不安全的原因"></a>HashMap在并发下不安全的原因</h4><ol>
+<li>在put元素时，两个线程同时put，则会发生一个覆盖另一个元素情况。</li>
+<li>在put元素时，上述情况下，计算size值就会减少</li>
+<li>当既有get操作，又有扩容操作的时候，有可能数据刚好被扩容换了桶，导致get不到数据。</li>
+<li>在jdk1.7之前扩容时是头插法，1.8之后是尾插法。头插法会导致死循环。</li>
+</ol>
+<h5 id="当put时，hashmap可能会扩容，头插法死循环"><a href="#当put时，hashmap可能会扩容，头插法死循环" class="headerlink" title="当put时，hashmap可能会扩容，头插法死循环"></a>当put时，hashmap可能会扩容，头插法死循环</h5><ul>
+<li>当两个线程都put时，都会发生扩容。</li>
+</ul>
+<p>分析：t1线程记录了a,b节点的引用，并将位置存入了内存中。此时切换了t2线程执行，且t2线程执行完成。顺序变为b-&gt;a。此时t1线程继续执行，读取之前存在内存中的值。结果如图所示。<img src="/image-34.png" alt="alt text"></p>
+<p>然后分析：当单线程情况下，t1线程执行结束后，b节点的后面是null的，但是此时多线程情况下，t2线程先执行完，导致b节点的next有值了，不为null了，那么线程t1就会继续执行，直到有null为止。会再次执行一步。结果就为（把a当作新节点插入），如下图所示。<img src="/image-35.png" alt="alt text"></p>
+<h4 id="HashMap-HashTable-ConcurrentHashMap区别"><a href="#HashMap-HashTable-ConcurrentHashMap区别" class="headerlink" title="HashMap,HashTable,ConcurrentHashMap区别"></a>HashMap,HashTable,ConcurrentHashMap区别</h4><ol>
+<li>HashMap是线程不安全的，另外两个线程安全</li>
+<li>HashMap是Key可以为null(只能一个),多个value可以为null；而另外两个不可以。（因为可能造成二义性，当一个线程插入，另外一个线程删除，当该线程获取key的时候，取出来null。但是不知道该null是指null还是不存在。）</li>
+<li>底层数据结构不同</li>
+<li>初始容量大小和每次扩充容量大小的不同： ① 创建时如果不指定容量初始值，Hashtable 默认的初始大小为 11，之后每次扩充，容量变为原来的 2n+1。HashMap 默认的初始化大小为 16。之后每次扩充，容量变为原来的 2 倍。② 创建时如果给定了容量初始值，那么 Hashtable 会直接使用你给定的大小，而 HashMap 会将其扩充为 2 的幂次方大小</li>
+</ol>
+<h4 id="ConcurrentHashMap的底层数据结构"><a href="#ConcurrentHashMap的底层数据结构" class="headerlink" title="ConcurrentHashMap的底层数据结构"></a>ConcurrentHashMap的底层数据结构</h4><p>JDK1.8之前是段segment水数组+链表的形式。当数据修改时，会锁住整个段数组。JDK1.8之后时Node数组+链表&#x2F;红黑树的形式。当数据修改时，只会锁住一个Node节点。锁粒度更细。通过Node+CAS+synchronized来保证并发安全的。</p>
+<h4 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h4><p>红黑树是自平衡二叉搜索树。（与二叉树相比，二叉树在顺序或逆序情况下退化为了链表，由O(logn)退化为O(n);与AVL相比，AVL在插入和删除时，需要维护AVL很耗时）红黑树适合频繁插入和删除，更加稳定。</p>
+<p>性质：</p>
+<ul>
+<li>根叶全黑</li>
+<li>无相邻的红色节点</li>
+<li>节点到任意叶节点路径，所含黑色节点数量相同。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java%E5%9F%BA%E7%A1%80/" rel="tag"># Java基础</a>
+              <a href="/tags/IO%E6%B5%81/" rel="tag"># IO流</a>
+              <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag"># 字符串</a>
+              <a href="/tags/%E9%9B%86%E5%90%88/" rel="tag"># 集合</a>
+              <a href="/tags/%E5%BC%82%E5%B8%B8/" rel="tag"># 异常</a>
+              <a href="/tags/%E5%8F%8D%E5%B0%84/" rel="tag"># 反射</a>
+              <a href="/tags/%E6%B3%9B%E5%9E%8B/" rel="tag"># 泛型</a>
+              <a href="/tags/%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag"># 序列化</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/08/04/JDK%E6%96%B0%E7%89%B9%E6%80%A7/" rel="prev" title="JDK新特性">
+      <i class="fa fa-chevron-left"></i> JDK新特性
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/08/14/Kafka%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97(%E4%BA%8C)/" rel="next" title="Kafka学习指南(二)">
+      Kafka学习指南(二) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">Java基础</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E5%92%8C%E9%9D%A2%E5%90%91%E8%BF%87%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.1.</span> <span class="nav-text">面向对象和面向过程的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E4%B8%89%E5%A4%A7%E7%89%B9%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">面向对象三大特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB%E5%8C%BA%E5%88%AB"><span class="nav-number">1.3.</span> <span class="nav-text">接口和抽象类区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E5%86%99%E5%92%8C%E9%87%8D%E8%BD%BD"><span class="nav-number">1.4.</span> <span class="nav-text">重写和重载</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">Java异常机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%8D%E5%B0%84"><span class="nav-number">2.1.</span> <span class="nav-text">反射</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><span class="nav-number">2.1.1.</span> <span class="nav-text">动态代理</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">2.2.</span> <span class="nav-text">序列化和反序列化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%9B%E5%9E%8B"><span class="nav-number">2.3.</span> <span class="nav-text">泛型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IO%E6%B5%81"><span class="nav-number">3.</span> <span class="nav-text">IO流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%9A%E4%B8%BE"><span class="nav-number">4.</span> <span class="nav-text">枚举</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java%E9%9B%86%E5%90%88"><span class="nav-number">5.</span> <span class="nav-text">Java集合</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9B%86%E5%90%88%E7%BB%93%E6%9E%84"><span class="nav-number">5.1.</span> <span class="nav-text">集合结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ArrayList%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6"><span class="nav-number">5.2.</span> <span class="nav-text">ArrayList扩容机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap%E9%9B%86%E5%90%88"><span class="nav-number">5.3.</span> <span class="nav-text">HashMap集合</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BA%95%E5%B1%82%E7%BB%93%E6%9E%84"><span class="nav-number">5.3.1.</span> <span class="nav-text">底层结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#get-%E6%96%B9%E6%B3%95"><span class="nav-number">5.3.2.</span> <span class="nav-text">get()方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#put-%E6%96%B9%E6%B3%95"><span class="nav-number">5.3.3.</span> <span class="nav-text">put()方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#remove-%E6%96%B9%E6%B3%95"><span class="nav-number">5.3.4.</span> <span class="nav-text">remove()方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8Dkey-%E9%80%9A%E8%BF%87%E5%93%88%E5%B8%8C%E5%80%BC%E8%AE%A1%E7%AE%97%E5%87%BA%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E4%BD%8D%E7%BD%AE"><span class="nav-number">5.3.5.</span> <span class="nav-text">如何定位key(通过哈希值计算出数组中的索引位置)</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%EF%BC%88table-length-1%EF%BC%89-%EF%BC%88key-hashCode-%EF%BC%88key-hashCode-16%EF%BC%89%EF%BC%89"><span class="nav-number">5.3.5.1.</span> <span class="nav-text">为什么（table.length - 1）&amp; （key.hashCode ^（key.hashCode &gt;&gt;&gt; 16））</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HashMap%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6"><span class="nav-number">5.3.6.</span> <span class="nav-text">HashMap扩容机制</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap%E5%9C%A8%E5%B9%B6%E5%8F%91%E4%B8%8B%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">5.4.</span> <span class="nav-text">HashMap在并发下不安全的原因</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BD%93put%E6%97%B6%EF%BC%8Chashmap%E5%8F%AF%E8%83%BD%E4%BC%9A%E6%89%A9%E5%AE%B9%EF%BC%8C%E5%A4%B4%E6%8F%92%E6%B3%95%E6%AD%BB%E5%BE%AA%E7%8E%AF"><span class="nav-number">5.4.1.</span> <span class="nav-text">当put时，hashmap可能会扩容，头插法死循环</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap-HashTable-ConcurrentHashMap%E5%8C%BA%E5%88%AB"><span class="nav-number">5.5.</span> <span class="nav-text">HashMap,HashTable,ConcurrentHashMap区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ConcurrentHashMap%E7%9A%84%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">5.6.</span> <span class="nav-text">ConcurrentHashMap的底层数据结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%A2%E9%BB%91%E6%A0%91"><span class="nav-number">5.7.</span> <span class="nav-text">红黑树</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Mr.Fang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.Fang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='' opacity='' zIndex='' count='' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
